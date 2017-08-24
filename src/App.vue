@@ -7,8 +7,37 @@
         <h3 class="group-name">Digital Library Initiatives</h3>
       </nav>
     </transition>
+    <transition name="slide-left">
+      <div v-if="imageInfoLoaded" class="app-containers card-container">
+        <transition name="switch-card">
+          <card
+            v-if="cardSwitch"
+            key="card-1"
+            :entities="randomThree"
+            :correctImage="currentImage"
+            v-on:identified="setIdentified"
+          >
+          </card>
+          <card
+            v-else
+            key="card-2"
+            :entities="randomThree"
+            :correctImage="currentImage"
+            v-on:identified="setIdentified"
+          >
+          </card>
+        </transition>
+      </div>
+    </transition>
+    <transition name="slide-right">
+      <div v-if="imageInfoLoaded" class="app-containers score-container">
+        <h2 class="score">{{identifiedCount}} / {{imageInfo.length}}</h2>
+      </div>
+    </transition>
     <transition name="slide-up">
-      <card v-if="imageInfoLoaded" :entities="imageInfo" class="slide-delay"></card>
+      <div v-if="imageInfoLoaded" class="app-container main-controls">
+        <button v-on:click="getRandomThreeSetImg(); newCard()">Next Card</button>
+      </div>
     </transition>
     <div v-if="!imageInfoLoaded" class="loading-icon"></div>
   </div>
@@ -17,6 +46,7 @@
 <script>
 import Card from './components/Card'
 import Sheetsy from 'sheetsy'
+import _ from 'lodash'
 
 const spreadsheetKey = Sheetsy.urlToKey('https://docs.google.com/spreadsheets/d/1Ew_tsLL-TxHdKuFHkeq807o9gEOekfPvKjFiecznDqc/edit#gid=0')
 
@@ -27,10 +57,40 @@ export default {
   },
   data () {
     return {
-      imageInfo: [],
       pageInfo: [],
+      imageInfo: [],
+      randomThree: [],
+      currentImage: {},
+      identifiedCount: 0,
       pageInfoLoaded: false,
-      imageInfoLoaded: false
+      imageInfoLoaded: false,
+      allIdentified: false,
+      cardSwitch: true
+    }
+  },
+  methods: {
+    getRandomThreeSetImg: function () {
+      if (_.every(this.imageInfo, ['identified', true])) {
+        this.allIdentified = true
+        return
+      }
+      const numberOfChoices = 3
+      // Filter by entities that have not been identified
+      this.currentImage = _.sample(
+        _.filter(this.imageInfo, entity => !entity.identified)
+      )
+      this.randomThree = _.sampleSize(
+        _.filter(this.imageInfo, entity => entity !== this.currentImage),
+        numberOfChoices - 1
+      )
+      this.randomThree.push(this.currentImage)
+    },
+    setIdentified: function () {
+      this.currentImage.identified = true
+      this.identifiedCount = _.filter(this.imageInfo, entity => entity.identified).length
+    },
+    newCard: function () {
+      this.cardSwitch = !this.cardSwitch
     }
   },
   beforeMount () {
@@ -57,6 +117,7 @@ export default {
 
                 // Remove loading spinner and add card
                 this.imageInfoLoaded = true
+                this.getRandomThreeSetImg()
               }
             )
           }
@@ -86,15 +147,29 @@ export default {
     max-width: 100%;
   }
 
+  button {
+    cursor: pointer;
+    background-color: #F2F2F2;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 6px;
+    border-color: #CCCCCC;
+    font-size: 1em;
+    transition: background-color 0.2s ease-in;
+
+    &:hover {
+      background-color: #CCCCCC;
+    }
+  }
+
   nav {
     width: 100%;
-    height: 8%;
-    min-height: 4em;
+    height: 60px;
     background-color: #CC0000;
     color: white;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     flex-wrap: wrap;
     padding-left: 0.85em;
     padding-right: 0.85em;
@@ -114,14 +189,27 @@ export default {
     }
   }
 
-  .slide-down-enter-active, .slide-up-enter-active, .fade-leave-active {
-    transition-property: all;
-    transition-timing-function: ease-in-out;
-    transition-duration: 0.6s;
+  .app-containers {
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
   }
 
-  .slide-delay {
-    transition-delay: 0.2s;
+  $card-width: 30vw;
+  .card-container {
+    height: 8/5 * $card-width;
+    min-height: 400px;
+  }
+
+  .score {
+    text-align: center;
+  }
+
+  .slide-down-enter-active, .slide-up-enter-active, .slide-right-enter-active, .slide-left-enter-active, .slide-left-leave-active {
+    transition-property: all;
+    transition-duration: 1.8s;
+    transition-timing-function: ease-in-out;
   }
 
   .slide-down-enter {
@@ -129,11 +217,25 @@ export default {
   }
 
   .slide-up-enter {
-    transform: translateY(calc(50vh + 50%));
+    transform: translateY(20vh);
   }
 
-  .fade-leave {
-    transform: translateY(100vh);
+  .slide-right-enter {
+    transform: translateX(-100%);
+  }
+
+  $card-width: 30vw;
+  .slide-left-enter, .slide-left-leave-to {
+    transform: translateX(50vw + ($card-width / 2));
+  }
+
+  .switch-card-enter-active, .switch-card-leave-active {
+    transition: all 0.6s cubic-bezier(.75,-0.5,0,1.75);
+  }
+
+  $card-width: 30vw;
+  .switch-card-enter, .switch-card-leave-to {
+    transform: translateX(50vw + ($card-width / 2));
   }
 
   .loading-icon {

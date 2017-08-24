@@ -1,6 +1,6 @@
 # image-id-vue
 
-> A template for creating your own image identification application with GitHub and Google Sheets with sheetsy
+> A Vue application to build a template for creating your own image identification application with GitHub pages and Google Sheets with sheetsy
 
 ## Build Setup
 

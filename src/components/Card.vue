@@ -8,11 +8,12 @@
           alt="Can you tell what is in this image?"
         >
       </div>
+      <h4 class="card-header question">What is this?</h4>
       <div class="buttons">
         <button
-          v-for="entity in randomThree"
-          v-on:click="flipped(); checkAnswer(entity.name)"
-          class="card-button"
+          v-for="entity in entities"
+          v-on:click="checkAnswer(entity.name); flipped()"
+          class="card-button button-front"
         >
           {{entity.name}}
         </button>
@@ -27,12 +28,13 @@
         >
       </div>
       <div v-show="isCorrect" class="correct-answer">
-        <h2>CORRECT!</h2>
+        <h2 class="card-header">You are correct!</h2>
+        <h2 class="card-header">{{correctImage.name}}</h2>
+        <h2 class="card-header">{{correctImage.info}}</h2>
       </div>
       <div v-show="!isCorrect" class="incorrect-answer">
-        <h2>Sorry, that's incorrect.</h2>
+        <h2 class="card-header">Sorry, that's incorrect.</h2>
       </div>
-      <button v-on:click="getRandomThreeSetImg(); flipped()">NEXT</button>
     </div>
   </div>
 </template>
@@ -45,10 +47,9 @@ import _ from 'lodash'
 
 export default {
   name: 'card',
-  props: ['entities'],
+  props: ['entities', 'correctImage'],
   data () {
     return {
-      allIdentified: false,
       isFlipped: false,
       isCorrect: false,
       randomThree: [],
@@ -56,75 +57,59 @@ export default {
     }
   },
   methods: {
-    getRandomThreeSetImg: function () {
-      const numberOfChoices = 4
-      // Filter by entities that have not been identified
-      let unidentified = _.filter(this.entities, entity => !entity.identified)
-      console.log(unidentified.length)
-      if (unidentified.length >= numberOfChoices) {
-        this.randomThree = _.sampleSize(unidentified, numberOfChoices)
-        this.currentImage = _.sample(this.randomThree)
-      } else if (unidentified.length >= 1) {
-        this.currentImage = _.sample(unidentified)
-        this.randomThree = _.sampleSize(
-          _.filter(this.entities, entity => entity !== this.currentImage),
-          numberOfChoices - 1
-        )
-        this.randomThree.push(this.currentImage)
-        this.randomThree = _.shuffle(this.randomThree)
-      } else {
-        console.log('COMPLETE')
-      }
+    setCurrentImage: function () {
+      this.currentImage = _.find(this.entities, entity => !entity.identified)
     },
+    // Check if the choice matches the image
     checkAnswer: function (name) {
-      if (this.currentImage.name === name) {
-        this.currentImage.identified = true
+      if (this.correctImage.name === name) {
+        this.correctImage.identified = true
         this.isCorrect = true
+        this.$emit('identified')
       } else this.isCorrect = false
     },
-    flipped: function (event) {
+    // Flip the card
+    flipped: function () {
       this.isFlipped = !this.isFlipped
     }
   },
   computed: {
     // Set the source of the current image
     imageSource: function () {
-      if (this.currentImage.name !== undefined) {
-        let name = this.currentImage.name.split(' ').join('_')
-        // var imgSrc = require('../assets/images/' + name + '.jpg')
+      if (this.correctImage.name !== undefined) {
+        let name = this.correctImage.name.split(' ').join('_')
         var imgSrc = './static/images/' + name + '.jpg'
       }
       return imgSrc
     }
-  },
-  mounted: function () {
-    this.getRandomThreeSetImg()
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-  $card-width: 25vw;
+  $card-width: 30vw;
   .card {
+    position: absolute;
     width: $card-width;
-    height: calc(8/5 * #{$card-width});
+    height: 8/5 * $card-width;
     min-width: 250px;
     min-height: 400px;
+    max-width: 500px;
+    max-height: 800px;
     perspective: $card-width * 10;
 
-    button {
-      cursor: pointer;
-      background-color: #F2F2F2;
-      border-style: solid;
-      border-width: 2px;
-      border-radius: 6px;
-      border-color: #CCCCCC;
-      font-size: 1em;
+    .card-header {
+      margin-top: 0.2em;
+      margin-bottom: 0.2em;
+      text-align: center;
+      font-size: 1.2em;
+    }
 
-      &:hover {
-        background-color: #CCCCCC;
-      }
+    .card-button {
+      height: auto;
+      min-height: 2.4em;
+      margin-top: 0.85em;
     }
 
     .card-front {
@@ -134,7 +119,7 @@ export default {
 
       .img-holder {
         width: 100%;
-        height: 50%;
+        // height: 50%;
 
         img {
           border-top-right-radius: 6px;
@@ -149,11 +134,8 @@ export default {
         align-items: center;
         justify-content: center;
 
-        .card-button {
+        .button-front {
           width: 75%;
-          height: auto;
-          min-height: 2.4em;
-          margin-top: 0.85em;
         }
       }
     }
@@ -166,7 +148,13 @@ export default {
       height: 100%;
       display: flex;
       flex-direction: column;
+      align-items: center;
       background-color: #fff;
+
+      .button-back {
+        padding-left: 1em;
+        padding-right: 1em;
+      }
     }
 
     .will-flip {
