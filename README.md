@@ -1,6 +1,6 @@
 # image-id-vue
 
-> A template for creating your own image identification application with GitHub and Google Sheets via tabletop.js
+> A template for creating your own image identification application with GitHub and Google Sheets with sheetsy
 
 ## Build Setup
 
@@ -17,11 +17,20 @@ npm run build
 # build for production and view the bundle analyzer report
 npm run build --report
 ```
+**Note for this build:**
 
-## Additional modules added
+Changed assets path in ```/config/index.js``` for correct reference to resources on GitHub pages:
+
+```js
+assetsPublicPath: '/' --> assetsPublicPath: './'
+```
+
+
+## Additional modules added for this project
 ``` bash
 # install sheetsy for fetching Google Sheets data
 npm install --save sheetsy
+
 # install modules to use SASS
 npm install sass-loader node-sass style-loader --save-dev
 ```
