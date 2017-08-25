@@ -11,6 +11,7 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
+    "include-media": "^1.4.9",
     "sheetsy": "^2.1.1",
     "vue": "^2.3.3"
   },

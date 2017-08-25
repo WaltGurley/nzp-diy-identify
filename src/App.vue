@@ -2,43 +2,44 @@
   <div id="app">
     <transition name="slide-down">
       <nav v-if="pageInfoLoaded">
-        <img class="logo-img" src="https://via.placeholder.com/150x150" alt="">
         <h2 class="app-title">{{pageInfo.appname}}</h2>
         <h3 class="group-name">Digital Library Initiatives</h3>
       </nav>
     </transition>
-    <transition name="slide-left">
-      <div v-if="imageInfoLoaded" class="app-containers card-container">
-        <transition name="switch-card">
-          <card
-            v-if="cardSwitch"
-            key="card-1"
-            :entities="randomThree"
-            :correctImage="currentImage"
-            v-on:identified="setIdentified"
-          >
-          </card>
-          <card
-            v-else
-            key="card-2"
-            :entities="randomThree"
-            :correctImage="currentImage"
-            v-on:identified="setIdentified"
-          >
-          </card>
-        </transition>
-      </div>
-    </transition>
-    <transition name="slide-right">
-      <div v-if="imageInfoLoaded" class="app-containers score-container">
-        <h2 class="score">{{identifiedCount}} / {{imageInfo.length}}</h2>
-      </div>
-    </transition>
-    <transition name="slide-up">
-      <div v-if="imageInfoLoaded" class="app-container main-controls">
-        <button v-on:click="getRandomThreeSetImg(); newCard()">Next Card</button>
-      </div>
-    </transition>
+    <div class="main-container">
+      <transition name="slide-left">
+        <div v-if="imageInfoLoaded" class="app-containers card-container">
+          <transition name="switch-card">
+            <card
+              v-if="cardSwitch"
+              key="card-1"
+              :entities="randomThree"
+              :correctImage="currentImage"
+              v-on:identified="setIdentified"
+            >
+            </card>
+            <card
+              v-else
+              key="card-2"
+              :entities="randomThree"
+              :correctImage="currentImage"
+              v-on:identified="setIdentified"
+            >
+            </card>
+          </transition>
+        </div>
+      </transition>
+      <transition name="slide-right">
+        <div v-if="imageInfoLoaded" class="app-containers score-container">
+          <h2 class="score">{{identifiedCount}} / {{imageInfo.length}}</h2>
+        </div>
+      </transition>
+      <transition name="slide-up">
+        <div v-if="imageInfoLoaded" class="app-containers main-controls">
+          <button v-on:click="getRandomThreeSetImg(); newCard()">Next Card</button>
+        </div>
+      </transition>
+    </div>
     <div v-if="!imageInfoLoaded" class="loading-icon"></div>
   </div>
 </template>
@@ -129,6 +130,9 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~include-media/dist/include-media";
+$breakpoints: (small-phone: 320px, tablet: 768px, desktop: 1024px);
+
 #app {
   height: 100%;
   display: flex;
@@ -174,13 +178,8 @@ export default {
     padding-left: 0.85em;
     padding-right: 0.85em;
 
-    .logo-img {
-      height: 3em;
-    }
-
     .app-title {
       font-weight: normal;
-      margin-left: 0.85em;
     }
 
     .group-name {
@@ -189,21 +188,30 @@ export default {
     }
   }
 
-  .app-containers {
+  .main-container {
     width: 100%;
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: center;
-  }
 
-  $card-width: 30vw;
-  .card-container {
-    height: 8/5 * $card-width;
-    min-height: 400px;
-  }
+    .app-containers {
+      width: 100%;
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+    }
 
-  .score {
-    text-align: center;
+    $card-width: 30vw;
+    .card-container {
+      height: 8/5 * $card-width;
+      min-height: 400px;
+      max-height: 800px;
+    }
+
+    .score {
+      text-align: center;
+
+      @include media("<=small-phone") {
+        margin-bottom: 0.1em;
+      }
+    }
   }
 
   .slide-down-enter-active, .slide-up-enter-active, .slide-right-enter-active, .slide-left-enter-active, .slide-left-leave-active {

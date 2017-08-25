@@ -12,7 +12,7 @@
       <div class="buttons">
         <button
           v-for="entity in entities"
-          v-on:click="checkAnswer(entity.name); flipped()"
+          v-on:click="checkAnswer(entity.name); flipped('to back')"
           class="card-button button-front"
         >
           {{entity.name}}
@@ -35,6 +35,11 @@
       <div v-show="!isCorrect" class="incorrect-answer">
         <h2 class="card-header">Sorry, that's incorrect.</h2>
       </div>
+      <button
+        v-on:click="flipped('to front')"
+        class="card-button button-back">
+        Next
+      </button>
     </div>
   </div>
 </template>
@@ -50,6 +55,7 @@ export default {
   props: ['entities', 'correctImage'],
   data () {
     return {
+      allIdentified: false,
       isFlipped: false,
       isCorrect: false,
       randomThree: [],
@@ -69,7 +75,11 @@ export default {
       } else this.isCorrect = false
     },
     // Flip the card
-    flipped: function () {
+    flipped: function (side) {
+      console.log(side)
+      if (side === 'to front') {
+        this.isCorrect = false
+      }
       this.isFlipped = !this.isFlipped
     }
   },
@@ -82,6 +92,9 @@ export default {
       }
       return imgSrc
     }
+  },
+  mounted: function () {
+    // this.setCurrentImage()
   }
 }
 </script>
@@ -90,9 +103,8 @@ export default {
 <style lang="scss" scoped>
   $card-width: 30vw;
   .card {
-    position: absolute;
     width: $card-width;
-    height: 8/5 * $card-width;
+    height: calc(8/5 * #{$card-width});
     min-width: 250px;
     min-height: 400px;
     max-width: 500px;
@@ -165,7 +177,7 @@ export default {
       box-shadow: 10px 10px 20px #CCCCCC;
       backface-visibility: hidden;
       transition-property: all;
-      transition-duration: 0.6s;
+      transition-duration: 1.2s;
       transtition-timing-function: ease-in-out;
       transition-timing-function: cubic-bezier(0.25, -0.5, 0.25, 1.5);
     }
