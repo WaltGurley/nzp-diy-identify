@@ -13,7 +13,8 @@
   "dependencies": {
     "include-media": "^1.4.9",
     "sheetsy": "^2.1.1",
-    "vue": "^2.3.3"
+    "vue": "^2.3.3",
+    "zooming": "^1.2.4"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

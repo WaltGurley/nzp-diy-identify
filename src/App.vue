@@ -16,6 +16,7 @@
               :entities="randomThree"
               :correctImage="currentImage"
               v-on:identified="setIdentified"
+              v-on:choiceMade="changeNewCardButtonText"
             >
             </card>
             <card
@@ -24,6 +25,7 @@
               :entities="randomThree"
               :correctImage="currentImage"
               v-on:identified="setIdentified"
+              v-on:choiceMade="changeNewCardButtonText"
             >
             </card>
           </transition>
@@ -36,7 +38,10 @@
       </transition>
       <transition name="slide-up">
         <div v-if="imageInfoLoaded" class="app-containers main-controls">
-          <button v-on:click="getRandomThreeSetImg(); newCard()">Next Card</button>
+          <button
+            v-on:click="getRandomThreeSetImg(); newCard()"
+            id="new-card-button"
+          >{{newCardButtonText}}</button>
         </div>
       </transition>
     </div>
@@ -62,6 +67,7 @@ export default {
       imageInfo: [],
       randomThree: [],
       currentImage: {},
+      newCardButtonText: 'Skip Card',
       identifiedCount: 0,
       pageInfoLoaded: false,
       imageInfoLoaded: false,
@@ -71,6 +77,7 @@ export default {
   },
   methods: {
     getRandomThreeSetImg: function () {
+      // Return if all images have been identified, GAME OVER
       if (_.every(this.imageInfo, ['identified', true])) {
         this.allIdentified = true
         return
@@ -80,8 +87,9 @@ export default {
       this.currentImage = _.sample(
         _.filter(this.imageInfo, entity => !entity.identified)
       )
+      const uniqueNames = _.uniqBy(this.imageInfo, 'entityname')
       this.randomThree = _.sampleSize(
-        _.filter(this.imageInfo, entity => entity !== this.currentImage),
+        _.filter(uniqueNames, entity => entity !== this.currentImage),
         numberOfChoices - 1
       )
       this.randomThree.push(this.currentImage)
@@ -92,6 +100,10 @@ export default {
     },
     newCard: function () {
       this.cardSwitch = !this.cardSwitch
+      this.newCardButtonText = 'Skip Card'
+    },
+    changeNewCardButtonText: function () {
+      this.newCardButtonText = 'Next Card'
     }
   },
   beforeMount () {
@@ -104,7 +116,6 @@ export default {
         Sheetsy.getSheet(spreadsheetKey, appInfoSheetId).then(
           appInfoSheet => {
             this.pageInfo = appInfoSheet.rows[0]
-            console.log(this.pageInfo)
             this.pageInfoLoaded = true
 
             Sheetsy.getSheet(spreadsheetKey, imageInfoSheetId).then(
@@ -116,6 +127,7 @@ export default {
                 })
                 this.imageInfo = imageInfoSheet.rows
 
+                console.log(this.imageInfo)
                 // Remove loading spinner and add card
                 this.imageInfoLoaded = true
                 this.getRandomThreeSetImg()
@@ -199,10 +211,14 @@ $breakpoints: (small-phone: 320px, tablet: 768px, desktop: 1024px);
     }
 
     $card-width: 30vw;
+    $card-height: 70vh;
     .card-container {
       height: 8/5 * $card-width;
+
+      @include media(">=desktop", "landscape") {
+        height: $card-height;
+      }
       min-height: 400px;
-      max-height: 800px;
     }
 
     .score {

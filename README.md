@@ -29,10 +29,18 @@ assetsPublicPath: '/' --> assetsPublicPath: './'
 ## Additional modules added for this project
 ``` bash
 # install sheetsy for fetching Google Sheets data
-npm install --save sheetsy
+npm install sheetsy --save
 
 # install modules to use SASS
 npm install sass-loader node-sass style-loader --save-dev
+
+
+# install include-media for easy media queries in SASS
+npm install include-media --save
+
+# install zooming to handle image zooming
+npm install zooming --save
 ```
+
 
 For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).

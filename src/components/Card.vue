@@ -4,18 +4,19 @@
       <div class="img-holder">
         <img
           v-bind:src="imageSource"
-          class="img-responsive"
+          class="img-responsive img-zoomable"
           alt="Can you tell what is in this image?"
+          data-action="zoom"
         >
       </div>
       <h4 class="card-header question">What is this?</h4>
       <div class="buttons">
         <button
           v-for="entity in entities"
-          v-on:click="checkAnswer(entity.name); flipped('to back')"
+          v-on:click="flipped(entity.entityname)"
           class="card-button button-front"
         >
-          {{entity.name}}
+          {{entity.entityname}}
         </button>
       </div>
     </div>
@@ -29,17 +30,12 @@
       </div>
       <div v-show="isCorrect" class="correct-answer">
         <h2 class="card-header">You are correct!</h2>
-        <h2 class="card-header">{{correctImage.name}}</h2>
-        <h2 class="card-header">{{correctImage.info}}</h2>
+        <h2 class="card-header">{{correctImage.entityname}}</h2>
+        <h2 class="card-header">{{correctImage.entitydescription}}</h2>
       </div>
       <div v-show="!isCorrect" class="incorrect-answer">
         <h2 class="card-header">Sorry, that's incorrect.</h2>
       </div>
-      <button
-        v-on:click="flipped('to front')"
-        class="card-button button-back">
-        Next
-      </button>
     </div>
   </div>
 </template>
@@ -47,8 +43,25 @@
 <script>
 // import Sheetsy from 'sheetsy'
 import _ from 'lodash'
+import Zooming from 'zooming'
 
-// const spreadsheetKey = Sheetsy.urlToKey('https://docs.google.com/spreadsheets/d/1VXAyesupiwGDHI1akAm6YvqUTTh0_NLemjz7USR9nuw/edit?usp=sharing')
+const zooming = new Zooming({
+  bgOpacity: 0,
+  // Add border radius to bottom of image when zoomed
+  onBeforeOpen: () => {
+    document.querySelector('.img-zoomable').setAttribute(
+      'style', 'border-radius: 6px;'
+    )
+    document.querySelector('#new-card-button').setAttribute('disabled', true)
+  },
+  // Remove border radius from bottom of image when back to card
+  onClose: () => {
+    document.querySelector('.img-zoomable').setAttribute(
+      'style', 'border-bottom-right-radius: 0; border-bottom-left-radius: 0'
+    )
+    document.querySelector('#new-card-button').removeAttribute('disabled')
+  }
+})
 
 export default {
   name: 'card',
@@ -66,45 +79,47 @@ export default {
     setCurrentImage: function () {
       this.currentImage = _.find(this.entities, entity => !entity.identified)
     },
+    // Flip the card
+    flipped: function (userChoice) {
+      this.isFlipped = !this.isFlipped
+      this.$emit('choiceMade')
+      this.checkAnswer(userChoice)
+    },
     // Check if the choice matches the image
     checkAnswer: function (name) {
-      if (this.correctImage.name === name) {
+      if (this.correctImage.entityname === name) {
         this.correctImage.identified = true
         this.isCorrect = true
         this.$emit('identified')
       } else this.isCorrect = false
-    },
-    // Flip the card
-    flipped: function (side) {
-      console.log(side)
-      if (side === 'to front') {
-        this.isCorrect = false
-      }
-      this.isFlipped = !this.isFlipped
     }
   },
   computed: {
     // Set the source of the current image
     imageSource: function () {
-      if (this.correctImage.name !== undefined) {
-        let name = this.correctImage.name.split(' ').join('_')
-        var imgSrc = './static/images/' + name + '.jpg'
-      }
-      return imgSrc
+      return './static/images/' + this.correctImage.imagename
     }
   },
   mounted: function () {
-    // this.setCurrentImage()
+    zooming.listen('.img-zoomable')
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+  @import "~include-media/dist/include-media";
+  $breakpoints: (small-phone: 320px, tablet: 768px, desktop: 1024px);
   $card-width: 30vw;
+  $card-height: 70vh;
   .card {
     width: $card-width;
     height: calc(8/5 * #{$card-width});
+
+    @include media(">=desktop", "landscape") {
+      width: calc(5/8 * #{$card-height});
+      height: $card-height;
+    }
     min-width: 250px;
     min-height: 400px;
     max-width: 500px;
@@ -162,11 +177,6 @@ export default {
       flex-direction: column;
       align-items: center;
       background-color: #fff;
-
-      .button-back {
-        padding-left: 1em;
-        padding-right: 1em;
-      }
     }
 
     .will-flip {
