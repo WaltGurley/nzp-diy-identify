@@ -260,6 +260,7 @@ $breakpoints: (small-phone: 320px, tablet: 768px, desktop: 1024px);
   $card-width: 30vw;
   .switch-card-enter, .switch-card-leave-to {
     transform: translateX(50vw + ($card-width / 2));
+    opacity: 0;
   }
 
   .loading-icon {
