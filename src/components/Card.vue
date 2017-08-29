@@ -13,11 +13,11 @@
         <h2 class="card-header question">What is this?</h2>
         <div class="buttons">
           <button
-            v-for="entity in entities"
-            v-on:click="flipped(entity.entityname)"
+            v-for="entityName in entityNames"
+            v-on:click="flipped(entityName)"
             class="card-button"
           >
-            {{entity.entityname}}
+            {{entityName}}
           </button>
         </div>
       </div>
@@ -44,7 +44,6 @@
 
 <script>
 // import Sheetsy from 'sheetsy'
-import _ from 'lodash'
 import Zooming from 'zooming'
 
 const zooming = new Zooming({
@@ -67,20 +66,16 @@ const zooming = new Zooming({
 
 export default {
   name: 'card',
-  props: ['entities', 'correctImage'],
+  props: ['entityNames', 'correctImage'],
   data () {
     return {
       allIdentified: false,
       isFlipped: false,
       isCorrect: false,
-      randomThree: [],
-      currentImage: {}
+      randomThree: []
     }
   },
   methods: {
-    setCurrentImage: function () {
-      this.currentImage = _.find(this.entities, entity => !entity.identified)
-    },
     // Flip the card
     flipped: function (userChoice) {
       this.isFlipped = !this.isFlipped
@@ -111,9 +106,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
   @import "~include-media/dist/include-media";
-  $breakpoints: (small-phone: 320px, tablet: 768px, desktop: 1024px);
+  $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px);
   $card-width: 30vw;
   $card-height: 70vh;
+
   .card {
     width: $card-width;
     height: calc(8/5 * #{$card-width});

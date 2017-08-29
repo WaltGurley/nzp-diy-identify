@@ -4,6 +4,7 @@
       <nav v-if="pageInfoLoaded">
         <h2 class="app-title">{{pageInfo.appname}}</h2>
         <h3 class="group-name">Digital Library Initiatives</h3>
+        <icon v-on:click.native="showInfo = !showInfo" name="info-circle" class="info-button"></icon>
       </nav>
     </transition>
     <div class="main-container">
@@ -13,7 +14,7 @@
             <card
               v-if="cardSwitch"
               key="card-1"
-              :entities="randomThree"
+              :entityNames="randomThree"
               :correctImage="currentImage"
               v-on:identified="setIdentified"
               v-on:choiceMade="changeNewCardButtonText"
@@ -22,7 +23,7 @@
             <card
               v-else
               key="card-2"
-              :entities="randomThree"
+              :entityNames="randomThree"
               :correctImage="currentImage"
               v-on:identified="setIdentified"
               v-on:choiceMade="changeNewCardButtonText"
@@ -46,19 +47,30 @@
         </div>
       </transition>
     </div>
+    <modal
+      v-if="showInfo"
+      :appInfo="pageInfo"
+      v-on:closeModal="showInfo = false"
+    >
+    </modal>
     <div v-if="!imageInfoLoaded" class="loading-icon"></div>
   </div>
 </template>
 
 <script>
 import Card from './components/Card'
+import Modal from './components/Modal'
 import Sheetsy from 'sheetsy'
 import _ from 'lodash'
+import 'vue-awesome/icons/info-circle'
+import Icon from 'vue-awesome/components/Icon'
 
 export default {
   name: 'app',
   components: {
-    Card
+    Card,
+    Modal,
+    Icon
   },
   data () {
     return {
@@ -71,7 +83,8 @@ export default {
       pageInfoLoaded: false,
       imageInfoLoaded: false,
       allIdentified: false,
-      cardSwitch: true
+      cardSwitch: true,
+      showInfo: false
     }
   },
   methods: {
@@ -86,12 +99,15 @@ export default {
       this.currentImage = _.sample(
         _.filter(this.imageInfo, entity => !entity.identified)
       )
-      const uniqueNames = _.uniqBy(this.imageInfo, 'entityname')
+      const names = _.map(this.imageInfo, entity => entity.entityname)
+      const uniqueNames = _.uniq(names)
       this.randomThree = _.sampleSize(
-        _.filter(uniqueNames, entity => entity !== this.currentImage),
+        _.filter(uniqueNames, entity =>
+          entity !== this.currentImage.entityname),
         numberOfChoices - 1
       )
-      this.randomThree.push(this.currentImage)
+      this.randomThree.push(this.currentImage.entityname)
+      console.log(this.randomThree)
     },
     setIdentified: function () {
       this.currentImage.identified = true
@@ -201,7 +217,7 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
       height: 40px;
     }
     background-color: #333333;
-    color: white;
+    color: #F2F2F2;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -220,12 +236,28 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
     .group-name {
       font-weight: normal;
       margin-left: auto;
+      margin-right: 0.85em;
       @include media("<=phone") {
-        font-size: 0.9em;
-      }
-
-      @include media("<=small-phone") {
         display: none;
+      }
+    }
+
+    .info-button {
+      cursor: pointer;
+      width: auto;
+      height: 40%;
+      margin-left: 0.85em;
+      @include media("<=tablet") {
+        height: 34px;
+      }
+      @include media("<=phone") {
+        margin-left: auto;
+      }
+      color: #F2F2F2;
+      transition: color 0.2s ease-in;
+
+      &:hover {
+        color: lighten(#CC0000, 40%);
       }
     }
   }
@@ -276,6 +308,9 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
         padding-right: 10px;
         padding-bottom: 5px;
         padding-left: 10px;
+        color: #FFFFFF;
+        background-color: darken(#4156A1, 15%);
+        border-color: lighten(#4156A1, 10%);
         box-shadow: 2.5px 2.5px 5px darken(#4156A1, 30%);
         transition: background-color 0.2s ease-in;
 
@@ -284,7 +319,7 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
         }
 
         &:hover {
-          background-color: #CCCCCC;
+          background-color: lighten(#4156A1, 10%);
         }
       }
     }
