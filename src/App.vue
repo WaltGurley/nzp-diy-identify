@@ -123,7 +123,7 @@ export default {
   },
   beforeMount () {
     // Start by fetching the Google Sheets URL from the local config file
-    fetch('../static/config.json').then(response => {
+    fetch('./static/config.json').then(response => {
       // Return the response JSON
       return response.json()
     }).then(config => {
