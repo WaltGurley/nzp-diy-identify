@@ -41,6 +41,7 @@
           <button
             v-on:click="getRandomThreeSetImg(); newCard()"
             id="new-card-button"
+            class="main-controls-buttons"
           >{{newCardButtonText}}</button>
         </div>
       </transition>
@@ -53,8 +54,6 @@
 import Card from './components/Card'
 import Sheetsy from 'sheetsy'
 import _ from 'lodash'
-
-const spreadsheetKey = Sheetsy.urlToKey('https://docs.google.com/spreadsheets/d/1Ew_tsLL-TxHdKuFHkeq807o9gEOekfPvKjFiecznDqc/edit#gid=0')
 
 export default {
   name: 'app',
@@ -107,43 +106,61 @@ export default {
     }
   },
   beforeMount () {
-    // Get the Google Sheets workbook and get the first sheet ID on initial load
-    Sheetsy.getWorkbook(spreadsheetKey).then(
-      workbook => {
-        const imageInfoSheetId = workbook.sheets[0].id
-        const appInfoSheetId = workbook.sheets[1].id
-        // Get the first sheet and extract the data
-        Sheetsy.getSheet(spreadsheetKey, appInfoSheetId).then(
-          appInfoSheet => {
-            this.pageInfo = appInfoSheet.rows[0]
-            this.pageInfoLoaded = true
-
-            Sheetsy.getSheet(spreadsheetKey, imageInfoSheetId).then(
-              imageInfoSheet => {
-                // Add 'identified' property to each row of data and set to false
-                // as no image has been identified
-                imageInfoSheet.rows.forEach(function (row) {
-                  row.identified = false
-                })
-                this.imageInfo = imageInfoSheet.rows
-
-                console.log(this.imageInfo)
-                // Remove loading spinner and add card
-                this.imageInfoLoaded = true
-                this.getRandomThreeSetImg()
-              }
+    // Start by fetching the Google Sheets URL from the local config file
+    fetch('../static/config.json').then(response => {
+      // Return the response JSON
+      return response.json()
+    }).then(config => {
+      // Convert the URL to a Key
+      return Sheetsy.urlToKey(config.GoogleSheetsURL)
+    }).then(key => {
+      // Get the Google Sheets workbook, get the sheet IDs, and return an
+      // array of the key, entity info sheet ID, and app info sheet ID
+      return Sheetsy.getWorkbook(key).then(
+        workbook => {
+          const entitySheetIDIndex = _.findIndex(workbook.sheets, sheet =>
+              sheet.name === 'Image Info'
             )
+          const appSheetIDIndex = _.findIndex(workbook.sheets, sheet =>
+              sheet.name === 'App Info'
+            )
+          const keyAndIDs = {
+            spreadsheetKey: key,
+            entitySheet: workbook.sheets[entitySheetIDIndex].id,
+            appSheet: workbook.sheets[appSheetIDIndex].id
           }
-        )
-      }
-    )
+          return keyAndIDs
+        })
+    }).then(keyAndIDs => {
+      // Get the App Info sheet and extract the data
+      Sheetsy.getSheet(keyAndIDs.spreadsheetKey, keyAndIDs.appSheet)
+        .then(appInfoSheet => {
+          this.pageInfo = appInfoSheet.rows[0]
+          this.pageInfoLoaded = true
+        })
+
+      // Get the Entity Info sheet and extract the data
+      Sheetsy.getSheet(keyAndIDs.spreadsheetKey, keyAndIDs.entitySheet)
+        .then(imageInfoSheet => {
+          // Add 'identified' property to each row of data and set to false
+          // as no image has been identified
+          imageInfoSheet.rows.forEach(function (row) {
+            row.identified = false
+          })
+          this.imageInfo = imageInfoSheet.rows
+
+          // Remove loading spinner and add card
+          this.imageInfoLoaded = true
+          this.getRandomThreeSetImg()
+        })
+    })
   }
 }
 </script>
 
 <style lang="scss">
 @import "~include-media/dist/include-media";
-$breakpoints: (small-phone: 320px, tablet: 768px, desktop: 1024px);
+$breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px);
 
 #app {
   height: 100%;
@@ -156,7 +173,7 @@ $breakpoints: (small-phone: 320px, tablet: 768px, desktop: 1024px);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  background-color: #FFFFFF;
+  background-color: #4156A1;
 
   .img-responsive {
     max-height: 100%;
@@ -170,7 +187,6 @@ $breakpoints: (small-phone: 320px, tablet: 768px, desktop: 1024px);
     border-width: 2px;
     border-radius: 6px;
     border-color: #CCCCCC;
-    font-size: 1em;
     transition: background-color 0.2s ease-in;
 
     &:hover {
@@ -181,7 +197,10 @@ $breakpoints: (small-phone: 320px, tablet: 768px, desktop: 1024px);
   nav {
     width: 100%;
     height: 60px;
-    background-color: #CC0000;
+    @include media("<=small-phone") {
+      height: 40px;
+    }
+    background-color: #333333;
     color: white;
     display: flex;
     align-items: center;
@@ -189,19 +208,38 @@ $breakpoints: (small-phone: 320px, tablet: 768px, desktop: 1024px);
     flex-wrap: wrap;
     padding-left: 0.85em;
     padding-right: 0.85em;
+    box-shadow: 0px 2.5px 5px darken(#4156A1, 30%);
 
     .app-title {
       font-weight: normal;
+      @include media("<=small-phone") {
+        font-size: 1em;
+      }
     }
 
     .group-name {
       font-weight: normal;
       margin-left: auto;
+      @include media("<=phone") {
+        font-size: 0.9em;
+      }
+
+      @include media("<=small-phone") {
+        display: none;
+      }
     }
   }
 
   .main-container {
     width: 100%;
+
+    @include media("<=phone", "portrait") {
+      height: 80vh;
+    }
+
+    @include media("<=small-phone", "portrait") {
+      height: calc(100vh - 60px);
+    }
 
     .app-containers {
       width: 100%;
@@ -223,9 +261,31 @@ $breakpoints: (small-phone: 320px, tablet: 768px, desktop: 1024px);
 
     .score {
       text-align: center;
+      color: #FFFFFF;
 
       @include media("<=small-phone") {
         margin-bottom: 0.1em;
+        margin-top: 0.4em;
+      }
+    }
+
+    .main-controls {
+      .main-controls-buttons {
+        font-size: 1.2em;
+        padding-top: 4px;
+        padding-right: 10px;
+        padding-bottom: 5px;
+        padding-left: 10px;
+        box-shadow: 2.5px 2.5px 5px darken(#4156A1, 30%);
+        transition: background-color 0.2s ease-in;
+
+        @include media("<=phone") {
+          font-size: 1em;
+        }
+
+        &:hover {
+          background-color: #CCCCCC;
+        }
       }
     }
   }
@@ -254,7 +314,7 @@ $breakpoints: (small-phone: 320px, tablet: 768px, desktop: 1024px);
   }
 
   .switch-card-enter-active, .switch-card-leave-active {
-    transition: all 0.6s cubic-bezier(.75,-0.5,0,1.75);
+    transition: all 0.8s cubic-bezier(.75,-0.5,0,1.75);
   }
 
   $card-width: 30vw;

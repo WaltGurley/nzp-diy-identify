@@ -9,15 +9,17 @@
           data-action="zoom"
         >
       </div>
-      <h4 class="card-header question">What is this?</h4>
-      <div class="buttons">
-        <button
-          v-for="entity in entities"
-          v-on:click="flipped(entity.entityname)"
-          class="card-button button-front"
-        >
-          {{entity.entityname}}
-        </button>
+      <div class="question-choices">
+        <h2 class="card-header question">What is this?</h2>
+        <div class="buttons">
+          <button
+            v-for="entity in entities"
+            v-on:click="flipped(entity.entityname)"
+            class="card-button"
+          >
+            {{entity.entityname}}
+          </button>
+        </div>
       </div>
     </div>
     <div class="card-back will-flip" v-bind:class="{ flippedToBack: !isFlipped }">
@@ -113,7 +115,6 @@ export default {
   $card-width: 30vw;
   $card-height: 70vh;
   .card {
-    position: absolute;
     width: $card-width;
     height: calc(8/5 * #{$card-width});
 
@@ -131,23 +132,21 @@ export default {
       margin-top: 0.2em;
       margin-bottom: 0.2em;
       text-align: center;
-      font-size: 1.2em;
-    }
-
-    .card-button {
-      height: auto;
-      min-height: 2.4em;
-      margin-top: 0.85em;
+      font-size: 1.4em;
     }
 
     .card-front {
       width: 100%;
       height: 100%;
-      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #FFFFFF;
 
       .img-holder {
         width: 100%;
-        // height: 50%;
+        max-height: 50%;
 
         img {
           border-top-right-radius: 6px;
@@ -155,15 +154,40 @@ export default {
         }
       }
 
-      .buttons {
-        height: 40%;
+      .question-choices {
+        width: 100%;
+        height: 50%;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        justify-content: space-around;
+        @include media(">=desktop") {
+          justify-content: center;
+        }
+        margin-bottom: 10px;
 
-        .button-front {
-          width: 75%;
+        .buttons {
+          width: 100%;
+          height: 80%;
+          @include media(">=desktop") {
+            height: 70%;
+          }
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+
+          .card-button {
+            height: 30%;
+            width: 75%;
+            font-size: 0.9em;
+            @include media(">=desktop") {
+              width: 70%;
+              // font-size: 1.2em;
+            }
+            min-height: 2.4em;
+            margin-top: 0.85em;
+          }
         }
       }
     }
@@ -177,15 +201,15 @@ export default {
       display: flex;
       flex-direction: column;
       align-items: center;
-      background-color: #fff;
+      background-color: #FFFFFF;
     }
 
     .will-flip {
       border-style: solid;
       border-width: 1px;
       border-radius: 6px;
-      border-color: #CCCCCC;
-      box-shadow: 10px 10px 20px #CCCCCC;
+      border-color: darken(#FFFFFF, 10%);
+      box-shadow: 10px 10px 20px darken(#4156A1, 30%);
       backface-visibility: hidden;
       transition-property: all;
       transition-duration: 1.2s;
