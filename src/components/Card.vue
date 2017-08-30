@@ -111,6 +111,9 @@ export default {
   $card-height: 70vh;
 
   .card {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     width: $card-width;
     height: calc(8/5 * #{$card-width});
 

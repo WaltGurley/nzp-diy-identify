@@ -28,18 +28,20 @@ assetsPublicPath: '/' --> assetsPublicPath: './'
 
 ## Additional modules added for this project
 ``` bash
-# install sheetsy for fetching Google Sheets data
-npm install sheetsy --save
-
 # install modules to use SASS
 npm install sass-loader node-sass style-loader --save-dev
 
+# install sheetsy for fetching Google Sheets data
+npm install sheetsy --save
 
 # install include-media for easy media queries in SASS
 npm install include-media --save
 
 # install zooming to handle image zooming
 npm install zooming --save
+
+# install vue-awesome, a Font Awesome component for Vue.js
+npm install vue-awesome --save
 ```
 
 

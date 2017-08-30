@@ -107,7 +107,6 @@ export default {
         numberOfChoices - 1
       )
       this.randomThree.push(this.currentImage.entityname)
-      console.log(this.randomThree)
     },
     setIdentified: function () {
       this.currentImage.identified = true
@@ -246,6 +245,7 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
       cursor: pointer;
       width: auto;
       height: 40%;
+      padding: 2px;
       margin-left: 0.85em;
       @include media("<=tablet") {
         height: 34px;
@@ -275,14 +275,12 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
 
     .app-containers {
       width: 100%;
-      display: flex;
-      flex-wrap: nowrap;
-      justify-content: center;
     }
 
     $card-width: 30vw;
     $card-height: 70vh;
     .card-container {
+      position: relative;
       height: 8/5 * $card-width;
 
       @include media(">=desktop", "landscape") {
@@ -292,6 +290,9 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
     }
 
     .score {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
       text-align: center;
       color: #FFFFFF;
 
@@ -302,6 +303,10 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
     }
 
     .main-controls {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+
       .main-controls-buttons {
         font-size: 1.2em;
         padding-top: 4px;
@@ -343,19 +348,20 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
     transform: translateX(-100%);
   }
 
-  $card-width: 30vw;
   .slide-left-enter, .slide-left-leave-to {
-    transform: translateX(50vw + ($card-width / 2));
+    transform: translateX(calc(50vw + 50%));
   }
 
   .switch-card-enter-active, .switch-card-leave-active {
     transition: all 0.8s cubic-bezier(.75,-0.5,0,1.75);
   }
 
-  $card-width: 30vw;
-  .switch-card-enter, .switch-card-leave-to {
-    transform: translateX(50vw + ($card-width / 2));
-    opacity: 0;
+  .switch-card-enter {
+    transform: translateX(calc(50vw + 50%));
+  }
+
+  .switch-card-leave-to {
+    transform: translateX(calc(-50vw - 100%));
   }
 
   .loading-icon {

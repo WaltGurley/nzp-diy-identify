@@ -48,14 +48,16 @@ $card-height: 70vh;
 
     .modal-holder {
       width: $card-width * 2;
-      height: calc(8/5 * #{$card-width});
+      height: auto;
+      // max-height: 80vh;
       @include media("<=phone") {
         width: calc(5/8 * #{$card-height} * 1.1);
         height: $card-height;
+        max-height: 75vmax;
       }
       @include media(">=desktop", "landscape") {
         width: calc(5/8 * #{$card-height} * 2);
-        height: $card-height;
+        // height: $card-height;
       }
       min-width: 250px;
       min-height: 400px;
@@ -64,7 +66,7 @@ $card-height: 70vh;
 
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
+      justify-content: center;
       align-items: center;
       overflow-y: scroll;
 
