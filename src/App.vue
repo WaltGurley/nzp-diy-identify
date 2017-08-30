@@ -53,7 +53,9 @@
       v-on:closeModal="showInfo = false"
     >
     </modal>
-    <div v-if="!imageInfoLoaded" class="loading-icon"></div>
+    <transition name="fade-out">
+      <div v-if="!imageInfoLoaded" class="loading-icon"></div>
+    </transition>
   </div>
 </template>
 
@@ -174,6 +176,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import url('https://fonts.googleapis.com/css?family=Heebo');
 @import "~include-media/dist/include-media";
 $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px);
 
@@ -184,7 +187,7 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
   justify-content: center;
   align-items: flex-start;
   flex-wrap: wrap;
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: 'Heebo', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
@@ -233,7 +236,7 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
     }
 
     .group-name {
-      font-weight: normal;
+      font-weight: lighter;
       margin-left: auto;
       margin-right: 0.85em;
       @include media("<=phone") {
@@ -330,7 +333,15 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
     }
   }
 
-  .slide-down-enter-active, .slide-up-enter-active, .slide-right-enter-active, .slide-left-enter-active, .slide-left-leave-active {
+  .fade-out-leave-active {
+    transition: opacity 0.2s ease;
+  }
+
+  .fade-out-leave-to {
+    opacity: 0;
+  }
+
+  .slide-down-enter-active, .slide-up-enter-active, .slide-right-enter-active, .slide-left-enter-active, .slide-left-leave-active, .fade-out-leave-active {
     transition-property: all;
     transition-duration: 1.8s;
     transition-timing-function: ease-in-out;
@@ -365,17 +376,19 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
   }
 
   .loading-icon {
-    $spinnerSize: 5vw;
+    $spinnerSize: 8vw;
     position: absolute;
     width: $spinnerSize;
     height: $spinnerSize;
     left: calc(50% - #{$spinnerSize} / 2);
     top: calc(50% - #{$spinnerSize} / 2);
-    border-radius: 50%;
-    border-bottom-color: #CC0000;
-    border-left-color: #000;
-    border-bottom-style: dashed;
-    border-left-style: dashed;
+    border-radius: 100%;
+    border-bottom-color: #F2F2F2;
+    border-left-color: #F2F2F2;
+    border-bottom-style: solid;
+    border-left-style: solid;
+    border-width: 1px;
+    box-shadow: 0px 2.5px 10px #F2F2F2;
     animation: 1s linear 0s infinite spin;
   }
 

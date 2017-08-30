@@ -33,7 +33,7 @@
       <div v-show="isCorrect" class="correct-answer">
         <h2 class="card-header">You are correct!</h2>
         <h2 class="card-header">{{correctImage.entityname}}</h2>
-        <h2 class="card-header">{{correctImage.entitydescription}}</h2>
+        <p class="card-paragraph">{{correctImage.entitydescription}}</p>
       </div>
       <div v-show="!isCorrect" class="incorrect-answer">
         <h2 class="card-header">Sorry, that's incorrect.</h2>
@@ -128,10 +128,16 @@ export default {
     perspective: $card-width * 10;
 
     .card-header {
+      font-weight: bold;
       margin-top: 0.2em;
       margin-bottom: 0.2em;
       text-align: center;
       font-size: 1.4em;
+    }
+
+    .card-paragraph {
+      margin-left: 1.4em;
+      margin-right: 1.4em;
     }
 
     .card-front {
@@ -163,7 +169,7 @@ export default {
         @include media(">=desktop") {
           justify-content: center;
         }
-        margin-bottom: 10px;
+        margin-bottom: 20px;
 
         .buttons {
           width: 100%;
@@ -180,12 +186,12 @@ export default {
             height: 30%;
             width: 75%;
             font-size: 0.9em;
-            @include media(">=desktop") {
-              width: 70%;
-              // font-size: 1.2em;
-            }
             min-height: 2.4em;
             margin-top: 0.85em;
+            @include media(">=desktop") {
+              width: 70%;
+              font-size: 1.2em;
+            }
           }
         }
       }
@@ -201,6 +207,7 @@ export default {
       flex-direction: column;
       align-items: center;
       background-color: #FFFFFF;
+      overflow-y: scroll;
     }
 
     .will-flip {
