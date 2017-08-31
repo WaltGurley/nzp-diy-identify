@@ -1,6 +1,33 @@
 <template>
-  <div class="card">
-    <div class="card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
+  <div v-if="stateOfApp === 'start'" class="card">
+    <div class="info-card card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
+      <h2 class="card-header start-card-header">{{cardData[0]}}</h2>
+      <p class="card-paragraph start-card-paragraph">
+        Test your ability to identify <span class="important-text">{{cardData[2]}}</span>!
+      </p>
+      <ol class="card-list card-paragraph start-card-paragraph">
+        <li class="card-list-item">You will be presented with an image and three choices.</li>
+        <li class="card-list-item">Select the choice that identifies what is in the image.</li>
+      </ol>
+      <button
+        v-on:click="flipped('')"
+        class="card-button start-card-button"
+      >
+        Next
+      </button>
+    </div>
+    <div class="info-card card-back will-flip" v-bind:class="{ flippedToBack: !isFlipped }">
+      <h2 class="card-header start-card-header">{{cardData[0]}}</h2>
+      <p class="card-paragraph start-card-paragraph">
+        Keep track of your progress with the score below. It shows you how many images you have correctly identified out of the total. Don't worry if you get one wrong. Any incorrect cards will be put back into the  deck for you to try again.
+      </p>
+      <p class="card-paragraph start-card-paragraph">
+        Select <span class="important-text">Start Game</span> below to begin!
+      </p>
+    </div>
+  </div>
+  <div v-else-if="stateOfApp === 'in progress'" class="card">
+    <div class="game-card card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
       <div class="img-holder">
         <img
           v-bind:src="imageSource"
@@ -13,7 +40,7 @@
         <h2 class="card-header question">What is this?</h2>
         <div class="buttons">
           <button
-            v-for="entityName in entityNames"
+            v-for="entityName in cardData"
             v-on:click="flipped(entityName)"
             class="card-button"
           >
@@ -22,7 +49,7 @@
         </div>
       </div>
     </div>
-    <div class="card-back will-flip" v-bind:class="{ flippedToBack: !isFlipped }">
+    <div class="game-card card-back will-flip" v-bind:class="{ flippedToBack: !isFlipped }">
       <div class="img-holder">
         <img
           v-bind:src="imageSource"
@@ -38,6 +65,15 @@
       <div v-show="!isCorrect" class="incorrect-answer">
         <h2 class="card-header">Sorry, that's incorrect.</h2>
       </div>
+    </div>
+  </div>
+  <div v-else-if="stateOfApp === 'end'" class="card">
+    <div class="info-card card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
+      <h2 class="card-header start-card-header">Congratulations!</h2>
+      <h2 class="card-paragraph start-card-paragraph">You have identified all the images!</h2>
+      <p class="card-paragraph start-card-paragraph">
+        Select <span class="important-text">Play Again</span> below to go through the images again.
+      </p>
     </div>
   </div>
 </template>
@@ -66,13 +102,11 @@ const zooming = new Zooming({
 
 export default {
   name: 'card',
-  props: ['entityNames', 'correctImage'],
+  props: ['cardData', 'correctImage', 'stateOfApp'],
   data () {
     return {
-      allIdentified: false,
       isFlipped: false,
-      isCorrect: false,
-      randomThree: []
+      isCorrect: false
     }
   },
   methods: {
@@ -81,6 +115,7 @@ export default {
       this.isFlipped = !this.isFlipped
       this.$emit('choiceMade')
       this.checkAnswer(userChoice)
+      console.log(this.stateOfApp)
     },
     // Check if the choice matches the image
     checkAnswer: function (name) {
@@ -108,12 +143,13 @@ export default {
   @import "~include-media/dist/include-media";
   $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px);
   $card-width: 30vw;
-  $card-height: 70vh;
+  $card-height: 60vh;
 
   .card {
     position: absolute;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(-50%);
     width: $card-width;
     height: calc(8/5 * #{$card-width});
 
@@ -133,11 +169,59 @@ export default {
       margin-bottom: 0.2em;
       text-align: center;
       font-size: 1.4em;
+      margin-left: 0.85em;
+      margin-right: 0.85em;
     }
 
     .card-paragraph {
-      margin-left: 1.4em;
-      margin-right: 1.4em;
+      margin-left: 0.85em;
+      margin-right: 0.85em;
+    }
+
+    .card-list {
+      padding-left: 0.85em;
+
+      .card-list-item {
+        margin-top: 0.85em;
+      }
+    }
+
+    .info-card {
+      justify-content: flex-start;
+      align-items: flex-start;
+
+      .start-card-header {
+        margin-top: 0.85em;
+        margin-bottom: 0;
+      }
+
+      .start-card-paragraph {
+        @include media(">=desktop") {
+          font-size: 1.1em;
+        }
+        margin-top: 0.85em;
+        margin-bottom: 0;
+        align-self: flex-start;
+      }
+
+      .start-card-button {
+        min-height: 1.8em;
+        font-size: 1.2em;
+        padding-top: 4px;
+        padding-right: 10px;
+        padding-bottom: 5px;
+        padding-left: 10px;
+        margin-top: 0.85em;
+        margin-bottom: 0.85em;
+          @include media(">=tablet") {
+            margin-top: auto;
+            margin-bottom: 1.7em;
+          }
+      }
+    }
+
+    .game-card .card-front {
+      justify-content: space-between;
     }
 
     .card-front {
@@ -146,7 +230,6 @@ export default {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
       background-color: #FFFFFF;
 
       .img-holder {
@@ -154,6 +237,7 @@ export default {
         max-height: 50%;
 
         img {
+          cursor: zoom-in;
           border-top-right-radius: 6px;
           border-top-left-radius: 6px;
         }
@@ -187,10 +271,14 @@ export default {
             width: 75%;
             font-size: 0.9em;
             min-height: 2.4em;
-            margin-top: 0.85em;
+            margin-top: 3%;
             @include media(">=desktop") {
               width: 70%;
               font-size: 1.2em;
+            }
+            @include media(">=desktop", "height<=760px") {
+              width: 70%;
+              font-size: 0.9em;
             }
           }
         }

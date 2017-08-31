@@ -80,10 +80,12 @@ $card-height: 70vh;
       transition-duration: 0.8s;
 
       .modal-paragraph {
-        width: 85%;
+        margin-left: 1.4em;
+        margin-right: 1.4em;
       }
 
       .modal-button {
+        min-height: 1.8em;
         font-size: 1.2em;
         padding-top: 4px;
         padding-right: 10px;

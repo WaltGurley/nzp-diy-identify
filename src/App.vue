@@ -14,8 +14,9 @@
             <card
               v-if="cardSwitch"
               key="card-1"
-              :entityNames="randomThree"
+              :cardData="dataForCurrentState"
               :correctImage="currentImage"
+              :stateOfApp="appState"
               v-on:identified="setIdentified"
               v-on:choiceMade="changeNewCardButtonText"
             >
@@ -23,8 +24,9 @@
             <card
               v-else
               key="card-2"
-              :entityNames="randomThree"
+              :cardData="dataForCurrentState"
               :correctImage="currentImage"
+              :stateOfApp="appState"
               v-on:identified="setIdentified"
               v-on:choiceMade="changeNewCardButtonText"
             >
@@ -33,16 +35,17 @@
         </div>
       </transition>
       <transition name="slide-right">
-        <div v-if="imageInfoLoaded" class="app-containers score-container">
+        <div v-show="!buttonDisabled" class="app-containers score-container">
           <h2 class="score">{{identifiedCount}} / {{imageInfo.length}}</h2>
         </div>
       </transition>
       <transition name="slide-up">
-        <div v-if="imageInfoLoaded" class="app-containers main-controls">
+        <div v-show="!buttonDisabled" class="app-containers main-controls">
           <button
-            v-on:click="getRandomThreeSetImg(); newCard()"
+            v-on:click="getNewCard"
             id="new-card-button"
             class="main-controls-buttons"
+            v-bind:disabled="buttonDisabled"
           >{{newCardButtonText}}</button>
         </div>
       </transition>
@@ -78,24 +81,30 @@ export default {
     return {
       pageInfo: [],
       imageInfo: [],
-      randomThree: [],
+      dataForCurrentState: [],
       currentImage: {},
-      newCardButtonText: 'Skip Card',
+      newCardButtonText: 'Start Game',
       identifiedCount: 0,
       pageInfoLoaded: false,
       imageInfoLoaded: false,
-      allIdentified: false,
       cardSwitch: true,
-      showInfo: false
+      showInfo: false,
+      appState: 'start',
+      buttonDisabled: true
     }
   },
   methods: {
-    getRandomThreeSetImg: function () {
-      // Return if all images have been identified, GAME OVER
-      if (_.every(this.imageInfo, ['identified', true])) {
-        this.allIdentified = true
-        return
-      }
+    startGame: function () {
+      this.dataForCurrentState = this.pageInfo
+      this.dataForCurrentState.push(this.imageInfo.length)
+    },
+    startOver: function () {
+      this.dataForCurrentState = this.pageInfo
+      this.dataForCurrentState.push(this.imageInfo.length)
+    },
+    getRandomChoicesSetImg: function () {
+      console.log('getting choices')
+
       const numberOfChoices = 3
       // Filter by entities that have not been identified
       this.currentImage = _.sample(
@@ -103,23 +112,52 @@ export default {
       )
       const names = _.map(this.imageInfo, entity => entity.entityname)
       const uniqueNames = _.uniq(names)
-      this.randomThree = _.sampleSize(
+      this.dataForCurrentState = _.sampleSize(
         _.filter(uniqueNames, entity =>
           entity !== this.currentImage.entityname),
         numberOfChoices - 1
       )
-      this.randomThree.push(this.currentImage.entityname)
+      this.dataForCurrentState.push(this.currentImage.entityname)
+      this.dataForCurrentState = _.shuffle(this.dataForCurrentState)
     },
     setIdentified: function () {
       this.currentImage.identified = true
       this.identifiedCount = _.filter(this.imageInfo, entity => entity.identified).length
     },
-    newCard: function () {
+    getNewCard: function () {
+      console.log(this.appState)
+
+      // If this is the start of the game change the app state to in progress
+      // Else if this is the end of the game remove correct identified and
+      // start over
+      if (this.appState === 'start') {
+        this.appState = 'in progress'
+      } else if (this.appState === 'end') {
+        this.imageInfo.forEach(function (row) {
+          row.identified = false
+        })
+        this.identifiedCount = 0
+        this.appState = 'in progress'
+      }
+
+      // Check if all images have been identified and return if so
+      if (this.identifiedCount === this.imageInfo.length) {
+        this.appState = 'end'
+        this.cardSwitch = !this.cardSwitch
+        this.newCardButtonText = 'Play Again'
+        return
+      }
+
+      this.getRandomChoicesSetImg()
       this.cardSwitch = !this.cardSwitch
       this.newCardButtonText = 'Skip Card'
     },
     changeNewCardButtonText: function () {
-      this.newCardButtonText = 'Next Card'
+      if (this.appState === 'in progress') {
+        this.newCardButtonText = 'Next Card'
+      } else if (this.appState === 'start') {
+        this.buttonDisabled = false
+      }
     }
   },
   beforeMount () {
@@ -154,6 +192,7 @@ export default {
         .then(appInfoSheet => {
           this.pageInfo = appInfoSheet.rows[0]
           this.pageInfoLoaded = true
+          this.startGame()
         })
 
       // Get the Entity Info sheet and extract the data
@@ -164,11 +203,11 @@ export default {
           imageInfoSheet.rows.forEach(function (row) {
             row.identified = false
           })
+
           this.imageInfo = imageInfoSheet.rows
 
           // Remove loading spinner and add card
           this.imageInfoLoaded = true
-          this.getRandomThreeSetImg()
         })
     })
   }
@@ -192,6 +231,11 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   background-color: #4156A1;
+
+  .important-text {
+    font-weight: bold;
+    color: #4156A1;
+  }
 
   .img-responsive {
     max-height: 100%;
@@ -267,6 +311,7 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
 
   .main-container {
     width: 100%;
+    // height: fill-available;
 
     @include media("<=phone", "portrait") {
       height: 80vh;
@@ -311,6 +356,7 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
       justify-content: center;
 
       .main-controls-buttons {
+        min-height: 1.8em;
         font-size: 1.2em;
         padding-top: 4px;
         padding-right: 10px;
@@ -320,7 +366,7 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
         background-color: darken(#4156A1, 15%);
         border-color: lighten(#4156A1, 10%);
         box-shadow: 2.5px 2.5px 5px darken(#4156A1, 30%);
-        transition: background-color 0.2s ease-in;
+        transition: all 0.2s ease-in;
 
         @include media("<=phone") {
           font-size: 1em;
@@ -328,6 +374,13 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
 
         &:hover {
           background-color: lighten(#4156A1, 10%);
+        }
+
+        &:disabled {
+          cursor: default;
+          color: #AAAAAA;
+          background-color: lighten(#4156A1, 60%);
+          box-shadow: none;
         }
       }
     }
@@ -368,11 +421,11 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
   }
 
   .switch-card-enter {
-    transform: translateX(calc(50vw + 50%));
+    transform: translateX(calc(50vw + 50%)) translateY(-50%);
   }
 
   .switch-card-leave-to {
-    transform: translateX(calc(-50vw - 100%));
+    transform: translateX(calc(-50vw - 105%)) translateY(-50%);
   }
 
   .loading-icon {
