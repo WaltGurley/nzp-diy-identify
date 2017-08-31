@@ -26,8 +26,9 @@
       </p>
     </div>
   </div>
+
   <div v-else-if="stateOfApp === 'in progress'" class="card">
-    <div class="game-card card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
+    <div class="card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
       <div class="img-holder">
         <img
           v-bind:src="imageSource"
@@ -49,12 +50,13 @@
         </div>
       </div>
     </div>
-    <div class="game-card card-back will-flip" v-bind:class="{ flippedToBack: !isFlipped }">
+    <div class="card-back will-flip" v-bind:class="{ flippedToBack: !isFlipped }">
       <div class="img-holder">
         <img
           v-bind:src="imageSource"
-          class="img-responsive"
+          class="img-responsive img-zoomable"
           alt="Can you tell what is in this image?"
+          data-action="zoom"
         >
       </div>
       <div v-show="isCorrect" class="correct-answer">
@@ -67,6 +69,7 @@
       </div>
     </div>
   </div>
+
   <div v-else-if="stateOfApp === 'end'" class="card">
     <div class="info-card card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
       <h2 class="card-header start-card-header">Congratulations!</h2>
@@ -220,16 +223,13 @@ export default {
       }
     }
 
-    .game-card .card-front {
-      justify-content: space-between;
-    }
-
     .card-front {
       width: 100%;
       height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: space-between;
       background-color: #FFFFFF;
 
       .img-holder {
@@ -295,7 +295,10 @@ export default {
       flex-direction: column;
       align-items: center;
       background-color: #FFFFFF;
-      overflow-y: scroll;
+
+      .correct-answer, .incorrect-answer {
+        overflow-y: scroll;
+      }
     }
 
     .will-flip {
