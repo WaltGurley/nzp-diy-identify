@@ -204,7 +204,7 @@ export default {
             row.identified = false
           })
 
-          this.imageInfo = imageInfoSheet.rows
+          this.imageInfo = imageInfoSheet.rows.slice(0, 3)
 
           // Remove loading spinner and add card
           this.imageInfoLoaded = true

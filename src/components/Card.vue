@@ -71,7 +71,7 @@
   </div>
 
   <div v-else-if="stateOfApp === 'end'" class="card">
-    <div class="info-card card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
+    <div class="info-card card-front will-flip">
       <h2 class="card-header start-card-header">Congratulations!</h2>
       <h2 class="card-paragraph start-card-paragraph">You have identified all the images!</h2>
       <p class="card-paragraph start-card-paragraph">
@@ -190,7 +190,7 @@ export default {
     }
 
     .info-card {
-      justify-content: flex-start;
+      justify-content: flex-start !important;
       align-items: flex-start;
 
       .start-card-header {
