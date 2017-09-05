@@ -103,8 +103,6 @@ export default {
       this.dataForCurrentState.push(this.imageInfo.length)
     },
     getRandomChoicesSetImg: function () {
-      console.log('getting choices')
-
       const numberOfChoices = 3
       // Filter by entities that have not been identified
       this.currentImage = _.sample(
@@ -125,14 +123,10 @@ export default {
       this.identifiedCount = _.filter(this.imageInfo, entity => entity.identified).length
     },
     getNewCard: function () {
-      console.log(this.appState)
-
-      // If this is the start of the game change the app state to in progress
-      // Else if this is the end of the game remove correct identified and
-      // start over
-      if (this.appState === 'start') {
-        this.appState = 'in progress'
-      } else if (this.appState === 'end') {
+      // At end of game if user selects to play again set all cards to not
+      // identified, reset the identified count and set application state
+      // to 'in progress'
+      let resetCards = () => {
         this.imageInfo.forEach(function (row) {
           row.identified = false
         })
@@ -140,7 +134,17 @@ export default {
         this.appState = 'in progress'
       }
 
-      // Check if all images have been identified and return if so
+      // If this is the start of the game change the app state to in progress
+      // Else if this is the end of the game remove correct identified and
+      // start over
+      if (this.appState === 'start') {
+        this.appState = 'in progress'
+      } else if (this.appState === 'end') {
+        resetCards()
+      }
+
+      // If all the images have been identified set the game state to 'end',
+      // switch cards, and set the appropriate button text
       if (this.identifiedCount === this.imageInfo.length) {
         this.appState = 'end'
         this.cardSwitch = !this.cardSwitch
@@ -204,7 +208,7 @@ export default {
             row.identified = false
           })
 
-          this.imageInfo = imageInfoSheet.rows.slice(0, 3)
+          this.imageInfo = imageInfoSheet.rows
 
           // Remove loading spinner and add card
           this.imageInfoLoaded = true

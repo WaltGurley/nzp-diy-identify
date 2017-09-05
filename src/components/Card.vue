@@ -82,24 +82,31 @@
 </template>
 
 <script>
-// import Sheetsy from 'sheetsy'
+// import Zooming for image zoom
 import Zooming from 'zooming'
 
 const zooming = new Zooming({
   bgOpacity: 0,
   // Add border radius to bottom of image when zoomed
   onBeforeOpen: () => {
-    document.querySelector('.img-zoomable').setAttribute(
-      'style', 'border-radius: 6px;'
+    document.querySelectorAll('.img-zoomable').forEach(img =>
+      img.setAttribute('style', 'border-radius: 6px;')
     )
-    document.querySelector('#new-card-button').setAttribute('disabled', true)
+    document.querySelectorAll('#new-card-button').forEach(img =>
+      img.setAttribute('disabled', true)
+    )
   },
   // Remove border radius from bottom of image when back to card
   onClose: () => {
-    document.querySelector('.img-zoomable').setAttribute(
-      'style', 'border-bottom-right-radius: 0; border-bottom-left-radius: 0'
+    document.querySelectorAll('.img-zoomable').forEach(d =>
+      d.setAttribute(
+        'style',
+        'border-bottom-right-radius: 0; border-bottom-left-radius: 0'
+      )
     )
-    document.querySelector('#new-card-button').removeAttribute('disabled')
+    document.querySelectorAll('#new-card-button').forEach(img =>
+      img.removeAttribute('disabled')
+    )
   }
 })
 
@@ -118,7 +125,6 @@ export default {
       this.isFlipped = !this.isFlipped
       this.$emit('choiceMade')
       this.checkAnswer(userChoice)
-      console.log(this.stateOfApp)
     },
     // Check if the choice matches the image
     checkAnswer: function (name) {
@@ -223,6 +229,17 @@ export default {
       }
     }
 
+    .img-holder {
+      width: 100%;
+      max-height: 50%;
+
+      img {
+        cursor: zoom-in;
+        border-top-right-radius: 6px;
+        border-top-left-radius: 6px;
+      }
+    }
+
     .card-front {
       width: 100%;
       height: 100%;
@@ -231,17 +248,6 @@ export default {
       align-items: center;
       justify-content: space-between;
       background-color: #FFFFFF;
-
-      .img-holder {
-        width: 100%;
-        max-height: 50%;
-
-        img {
-          cursor: zoom-in;
-          border-top-right-radius: 6px;
-          border-top-left-radius: 6px;
-        }
-      }
 
       .question-choices {
         width: 100%;
