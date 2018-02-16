@@ -1,9 +1,9 @@
 <template>
   <div v-if="stateOfApp === 'start'" class="card">
     <div class="info-card card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
-      <h2 class="card-header start-card-header">{{cardData[0]}}</h2>
+      <h2 class="card-header start-card-header">APP NAME HERE</h2>
       <p class="card-paragraph start-card-paragraph">
-        Test your ability to identify <span class="important-text">{{cardData[2]}}</span>!
+        Test your ability to identify <span class="important-text">GENERAL DESCRIPTOR OF IMAGES HERE</span>!
       </p>
       <ol class="card-list card-paragraph start-card-paragraph">
         <li class="card-list-item">You will be presented with an image and three choices.</li>
@@ -41,31 +41,53 @@
         <h2 class="card-header question">What is this?</h2>
         <div class="buttons">
           <button
-            v-for="entityName in cardData"
-            v-on:click="flipped(entityName)"
+            v-for="entity in cardData"
+            v-on:click="flipped(entity)"
             class="card-button"
           >
-            {{entityName}}
+            {{entity.EntityName}}
           </button>
         </div>
       </div>
     </div>
-    <div class="card-back will-flip" v-bind:class="{ flippedToBack: !isFlipped }">
-      <div class="img-holder">
-        <img
-          v-bind:src="imageSource"
-          class="img-responsive img-zoomable"
-          alt="Can you tell what is in this image?"
-          data-action="zoom"
-        >
+
+    <div class="card-back will-flip" v-bind:class="{flippedToBack: !isFlipped}">
+      <div  v-show="isCorrect">
+        <div class="img-holder">
+          <img
+            v-bind:src="imageSource"
+            class="img-responsive img-zoomable"
+            alt="Can you tell what is in this image?"
+            data-action="zoom"
+          >
+        </div>
+        <div class="correct-answer">
+          <h2 class="card-header">You are correct!</h2>
+          <h2 class="card-header">{{correctImage.EntityName}}</h2>
+          <p class="card-paragraph">{{correctImage.EntityDescription}}</p>
+        </div>
       </div>
-      <div v-show="isCorrect" class="correct-answer">
-        <h2 class="card-header">You are correct!</h2>
-        <h2 class="card-header">{{correctImage.entityname}}</h2>
-        <p class="card-paragraph">{{correctImage.entitydescription}}</p>
-      </div>
-      <div v-show="!isCorrect" class="incorrect-answer">
-        <h2 class="card-header">Sorry, that's incorrect.</h2>
+
+      <div v-show="!isCorrect">
+        <div class="img-holder">
+          <img
+            v-bind:src="imageSource"
+            class="img-responsive img-zoomable"
+            alt="Can you tell what is in this image?"
+            data-action="zoom"
+          >
+        </div>
+        <div class="incorrect-answer">
+          <h2 class="card-header">Sorry, that's incorrect.</h2>
+        </div>
+        <div class="img-holder">
+          <img
+            v-bind:src="wrongImageSource"
+            class="img-responsive img-zoomable"
+            alt="Can you tell what is in this image?"
+            data-action="zoom"
+          >
+        </div>
       </div>
     </div>
   </div>
@@ -116,7 +138,8 @@ export default {
   data () {
     return {
       isFlipped: false,
-      isCorrect: false
+      isCorrect: false,
+      wrongImageSource: ''
     }
   },
   methods: {
@@ -127,18 +150,21 @@ export default {
       this.checkAnswer(userChoice)
     },
     // Check if the choice matches the image
-    checkAnswer: function (name) {
-      if (this.correctImage.entityname === name) {
+    checkAnswer: function (userChoice) {
+      if (this.correctImage.EntityName === userChoice.EntityName) {
         this.correctImage.identified = true
         this.isCorrect = true
         this.$emit('identified')
-      } else this.isCorrect = false
+      } else {
+        this.isCorrect = false
+        this.wrongImageSource = `./static/images/${userChoice.ImageName}`
+      }
     }
   },
   computed: {
     // Set the source of the current image
     imageSource: function () {
-      return './static/images/' + this.correctImage.imagename
+      return './static/images/' + this.correctImage.ImageName
     }
   },
   mounted: function () {

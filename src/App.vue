@@ -2,8 +2,8 @@
   <div id="app">
     <transition name="slide-down">
       <nav v-if="pageInfoLoaded">
-        <h2 class="app-title">{{pageInfo.appname}}</h2>
-        <h3 class="group-name">Digital Library Initiatives</h3>
+        <h2 class="app-title">YOUR APPLICATION NAME HERE</h2>
+        <h3 class="group-name">YOUR GROUP NAME HERE</h3>
         <icon v-on:click.native="showInfo = !showInfo" name="info-circle" class="info-button"></icon>
       </nav>
     </transition>
@@ -65,10 +65,15 @@
 <script>
 import Card from './components/Card'
 import Modal from './components/Modal'
-import Sheetsy from 'sheetsy'
-import _ from 'lodash'
+import filter from 'lodash/filter'
+import sample from 'lodash/sample'
+import sampleSize from 'lodash/sampleSize'
+import shuffle from 'lodash/shuffle'
+import uniqBy from 'lodash/uniqBy'
 import 'vue-awesome/icons/info-circle'
 import Icon from 'vue-awesome/components/Icon'
+
+import imgData from '../static/imageInfo.csv'
 
 export default {
   name: 'app',
@@ -105,22 +110,23 @@ export default {
     getRandomChoicesSetImg: function () {
       const numberOfChoices = 3
       // Filter by entities that have not been identified
-      this.currentImage = _.sample(
-        _.filter(this.imageInfo, entity => !entity.identified)
+      this.currentImage = sample(
+        filter(this.imageInfo, entity => !entity.identified)
       )
-      const names = _.map(this.imageInfo, entity => entity.entityname)
-      const uniqueNames = _.uniq(names)
-      this.dataForCurrentState = _.sampleSize(
-        _.filter(uniqueNames, entity =>
-          entity !== this.currentImage.entityname),
+      // const names = map(this.imageInfo, entity => entity.EntityName)
+      const uniqueEntities = uniqBy(this.imageInfo, 'EntityName')
+      // const uniqueNames = uniq(names)
+      this.dataForCurrentState = sampleSize(
+        filter(uniqueEntities, entity =>
+          entity.EntityName !== this.currentImage.EntityName),
         numberOfChoices - 1
       )
-      this.dataForCurrentState.push(this.currentImage.entityname)
-      this.dataForCurrentState = _.shuffle(this.dataForCurrentState)
+      this.dataForCurrentState.push(this.currentImage)
+      this.dataForCurrentState = shuffle(this.dataForCurrentState)
     },
     setIdentified: function () {
       this.currentImage.identified = true
-      this.identifiedCount = _.filter(this.imageInfo, entity => entity.identified).length
+      this.identifiedCount = filter(this.imageInfo, entity => entity.identified).length
     },
     getNewCard: function () {
       // At end of game if user selects to play again set all cards to not
@@ -165,55 +171,17 @@ export default {
     }
   },
   beforeMount () {
-    // Start by fetching the Google Sheets URL from the local config file
-    fetch('./static/config.json').then(response => {
-      // Return the response JSON
-      return response.json()
-    }).then(config => {
-      // Convert the URL to a Key
-      return Sheetsy.urlToKey(config.GoogleSheetsURL)
-    }).then(key => {
-      // Get the Google Sheets workbook, get the sheet IDs, and return an
-      // array of the key, entity info sheet ID, and app info sheet ID
-      return Sheetsy.getWorkbook(key).then(
-        workbook => {
-          const entitySheetIDIndex = _.findIndex(workbook.sheets, sheet =>
-              sheet.name === 'Image Info'
-            )
-          const appSheetIDIndex = _.findIndex(workbook.sheets, sheet =>
-              sheet.name === 'App Info'
-            )
-          const keyAndIDs = {
-            spreadsheetKey: key,
-            entitySheet: workbook.sheets[entitySheetIDIndex].id,
-            appSheet: workbook.sheets[appSheetIDIndex].id
-          }
-          return keyAndIDs
-        })
-    }).then(keyAndIDs => {
-      // Get the App Info sheet and extract the data
-      Sheetsy.getSheet(keyAndIDs.spreadsheetKey, keyAndIDs.appSheet)
-        .then(appInfoSheet => {
-          this.pageInfo = appInfoSheet.rows[0]
-          this.pageInfoLoaded = true
-          this.startGame()
-        })
-
-      // Get the Entity Info sheet and extract the data
-      Sheetsy.getSheet(keyAndIDs.spreadsheetKey, keyAndIDs.entitySheet)
-        .then(imageInfoSheet => {
-          // Add 'identified' property to each row of data and set to false
-          // as no image has been identified
-          imageInfoSheet.rows.forEach(function (row) {
-            row.identified = false
-          })
-
-          this.imageInfo = imageInfoSheet.rows
-
-          // Remove loading spinner and add card
-          this.imageInfoLoaded = true
-        })
+    // Get the imagage information sheet and extract the data
+    // This is locally loaded from '../static/imageInfo.csv'
+    // Add 'identified' property to each row of data and set to false
+    // as no image has been identified
+    imgData.forEach(function (row) {
+      row.identified = false
     })
+    this.imageInfo = imgData
+
+    // Remove loading spinner and add card
+    this.imageInfoLoaded = true
   }
 }
 </script>

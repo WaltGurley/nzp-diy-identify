@@ -3,9 +3,9 @@
     <div class="modal">
         <div v-on:click="$emit('closeModal')" class="modal-background">
           <div class="modal-holder">
-            <h4>About {{appInfo.appname}}</h4>
-            <p class="modal-paragraph">{{appInfo.appdescription}}</p>
-            <a v-bind:href="appInfo.sitelink">{{appInfo.sitelink}}</a>
+            <h4>About YOUR APP NAME HERE</h4>
+            <p class="modal-paragraph">A DESCRIPTION OF YOUR APP/YOUR ORGANIZATION</p>
+            <a href="#">LINK?</a>
             <button v-on:click="$emit('closeModal')" class="modal-button">Close</button>
           </div>
         </div>
@@ -16,7 +16,6 @@
 <script>
 export default {
   name: 'modal',
-  props: ['appInfo'],
   data () {
     return {
 

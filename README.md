@@ -1,6 +1,6 @@
-# image-id-vue
+# nzp-diy-identify
 
-> A Vue application to build a template for creating your own image identification application with GitHub pages and Google Sheets with sheetsy
+> A Vue project to build an image identification web application using locally hosted images and tabular metadata for each image. This version was created specifically for an exhibit at the National Zoological Park
 
 ## Build Setup
 
@@ -31,8 +31,8 @@ assetsPublicPath: '/' --> assetsPublicPath: './'
 # install modules to use SASS
 npm install sass-loader node-sass style-loader --save-dev
 
-# install sheetsy for fetching Google Sheets data
-npm install sheetsy --save
+# install csv-loader for easy loading of local csv files
+npm install csv-loader --save
 
 # install include-media for easy media queries in SASS
 npm install include-media --save
