@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <transition name="slide-down">
-      <nav v-if="pageInfoLoaded">
-        <h2 class="app-title">YOUR APPLICATION NAME HERE</h2>
+      <nav>
+        <h1 class="app-title">YOUR APP NAME HERE</h1>
         <h3 class="group-name">YOUR GROUP NAME HERE</h3>
         <icon v-on:click.native="showInfo = !showInfo" name="info-circle" class="info-button"></icon>
       </nav>
