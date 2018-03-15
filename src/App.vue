@@ -2,8 +2,8 @@
   <div id="app">
     <transition name="slide-down">
       <nav>
-        <h1 class="app-title">YOUR APP NAME HERE</h1>
-        <h3 class="group-name">YOUR GROUP NAME HERE</h3>
+        <h1 class="app-title">Under the Umbrella</h1>
+        <h3 class="group-name">Smithsonian's National Zoo and Conservation Biology Institute</h3>
         <icon v-on:click.native="showInfo = !showInfo" name="info-circle" class="info-button"></icon>
       </nav>
     </transition>

@@ -3,7 +3,7 @@
     <div class="info-card card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
       <h2 class="card-header start-card-header">APP NAME HERE</h2>
       <p class="card-paragraph start-card-paragraph">
-        Test your ability to identify <span class="important-text">GENERAL DESCRIPTOR OF IMAGES HERE</span>!
+        Test your ability to identify <span class="important-text">Animals in China</span>!
       </p>
       <ol class="card-list card-paragraph start-card-paragraph">
         <li class="card-list-item">You will be presented with an image and three choices.</li>
@@ -32,6 +32,7 @@
       <div class="img-holder">
         <img
           v-bind:src="imageSource"
+          <!-- TODO: ADD ALTERNATIVE TEXT v-bind:alt="" -->
           class="img-responsive img-zoomable"
           alt="Can you tell what is in this image?"
           data-action="zoom"
