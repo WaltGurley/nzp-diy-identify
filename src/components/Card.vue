@@ -1,7 +1,7 @@
 <template>
   <div v-if="stateOfApp === 'start'" class="card">
     <div class="info-card card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
-      <h2 class="card-header start-card-header">APP NAME HERE</h2>
+      <h1 class="card-header start-card-header">Under the Umbrella</h1>
       <p class="card-paragraph start-card-paragraph">
         Test your ability to identify <span class="important-text">Animals in China</span>!
       </p>
@@ -31,15 +31,14 @@
     <div class="card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
       <div class="img-holder">
         <img
-          v-bind:src="imageSource"
-          <!-- TODO: ADD ALTERNATIVE TEXT v-bind:alt="" -->
+          v-bind:src="imageSource.url"
+          v-bind:alt="imageSource.altText"
           class="img-responsive img-zoomable"
-          alt="Can you tell what is in this image?"
           data-action="zoom"
         >
       </div>
       <div class="question-choices">
-        <h2 class="card-header question">What is this?</h2>
+        <h2 class="card-header question">What is this animal?</h2>
         <div class="buttons">
           <button
             v-for="entity in cardData"
@@ -53,10 +52,11 @@
     </div>
 
     <div class="card-back will-flip" v-bind:class="{flippedToBack: !isFlipped}">
-      <div  v-show="isCorrect">
+      <div v-show="isCorrect">
         <div class="img-holder">
           <img
-            v-bind:src="imageSource"
+            v-bind:src="imageSource.url"
+            v-bind:alt="imageSource.altText"
             class="img-responsive img-zoomable"
             alt="Can you tell what is in this image?"
             data-action="zoom"
@@ -72,7 +72,8 @@
       <div v-show="!isCorrect">
         <div class="img-holder">
           <img
-            v-bind:src="imageSource"
+            v-bind:src="imageSource.url"
+            v-bind:alt="imageSource.altText"
             class="img-responsive img-zoomable"
             alt="Can you tell what is in this image?"
             data-action="zoom"
@@ -80,10 +81,12 @@
         </div>
         <div class="incorrect-answer">
           <h2 class="card-header">Sorry, that's incorrect.</h2>
+          <p>This is a {{correctImage.EntityName}}. Below is an example of a {{userChoice.EntityName}}</p>
         </div>
         <div class="img-holder">
           <img
-            v-bind:src="wrongImageSource"
+            v-bind:src="wrongImageSource.url"
+            v-bind:alt="wrongImageSource.altText"
             class="img-responsive img-zoomable"
             alt="Can you tell what is in this image?"
             data-action="zoom"
@@ -140,7 +143,8 @@ export default {
     return {
       isFlipped: false,
       isCorrect: false,
-      wrongImageSource: ''
+      wrongImageSource: '',
+      userChoice: ''
     }
   },
   methods: {
@@ -152,20 +156,27 @@ export default {
     },
     // Check if the choice matches the image
     checkAnswer: function (userChoice) {
+      this.userChoice = userChoice
       if (this.correctImage.EntityName === userChoice.EntityName) {
         this.correctImage.identified = true
         this.isCorrect = true
         this.$emit('identified')
       } else {
         this.isCorrect = false
-        this.wrongImageSource = `./static/images/${userChoice.ImageName}`
+        this.wrongImageSource = {
+          'url': `./static/images/${userChoice.ImageName}`,
+          'altText': userChoice.AltText
+        }
       }
     }
   },
   computed: {
     // Set the source of the current image
     imageSource: function () {
-      return './static/images/' + this.correctImage.ImageName
+      return {
+        'url': `./static/images/${this.correctImage.ImageName}`,
+        'altText': this.correctImage.AltText
+      }
     }
   },
   mounted: function () {
