@@ -1,8 +1,10 @@
 # nzp-diy-identify
 
-> A Vue project to build an image identification web application using locally hosted images and tabular metadata for each image. This version was created specifically for an exhibit at the National Zoological Park
+> A Vue project to build an image identification web application using locally hosted images and tabular data for each image. This version was created specifically for an exhibit at the National Zoological Park.
 
-## Build Setup
+## Development Setup
+
+1. Install dependencies and start local server
 
 ``` bash
 # install dependencies
@@ -10,7 +12,18 @@ npm install
 
 # serve with hot reload at localhost:8080
 npm run dev
+```
 
+2. Ensure proper image and data setup for application
+  * Data must be stored as a .csv file named `imageInfo.csv` in the directory `/static/`
+  * Images must be stored in the directory `/static/images/`. The names of each image must exactly match the corresponding name in the 'ImageName' column of `imageInfo.csv`. This includes extension capitalization (e.g., .jpg vs .JPG). As an example, to quickly convert '.JPG' file extensions to lowercase run the following bash script from the command line in the directory `/static/images/`:
+  ```bash
+  bash for file in *.JPG; do mv "$file" "${file/.JPG/.jpg}"; done
+  ```
+
+## Build production application
+
+``` bash
 # build for production with minification
 npm run build
 

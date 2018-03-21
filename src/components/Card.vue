@@ -51,7 +51,7 @@
       </div>
     </div>
 
-    <div class="card-back will-flip" v-bind:class="{flippedToBack: !isFlipped}">
+    <div class="card-back will-flip" v-bind:class="{ flippedToBack: !isFlipped }">
       <div v-show="isCorrect">
         <div class="img-holder">
           <img
