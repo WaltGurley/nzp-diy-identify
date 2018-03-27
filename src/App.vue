@@ -186,6 +186,9 @@ export default {
   },
   mounted () {
     // Remove loading spinner and add card
+    // Originally this data was loaded remotely via fetch and this was set
+    // in the beforeMount lifecycle hook after data load. We're kind of faking
+    // it here.
     this.imageInfoLoaded = true
   }
 }
