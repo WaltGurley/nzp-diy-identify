@@ -350,7 +350,7 @@ export default {
       border-width: 1px;
       border-radius: 6px;
       border-color: darken(#FFFFFF, 10%);
-      box-shadow: 10px 10px 20px darken(#4156A1, 30%);
+      box-shadow: 10px 20px 40px #24383A;
       backface-visibility: hidden;
       transition-property: all;
       transition-duration: 1.2s;

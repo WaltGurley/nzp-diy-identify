@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
+  <div id="app" v-on:click="resetOnInactivity">
     <transition name="slide-down">
-      <nav>
+      <nav v-if="imageInfoLoaded">
         <h1 class="app-title">Under the Umbrella</h1>
         <h3 class="group-name">Smithsonian's National Zoo and Conservation Biology Institute</h3>
         <icon v-on:click.native="showInfo = !showInfo" name="info-circle" class="info-button"></icon>
@@ -84,7 +84,6 @@ export default {
   },
   data () {
     return {
-      pageInfo: [],
       imageInfo: [],
       dataForCurrentState: [],
       currentImage: {},
@@ -95,7 +94,8 @@ export default {
       cardSwitch: true,
       showInfo: false,
       appState: 'start',
-      buttonDisabled: true
+      buttonDisabled: true,
+      startInactiveResetTimer: {}
     }
   },
   methods: {
@@ -129,24 +129,13 @@ export default {
       this.identifiedCount = filter(this.imageInfo, entity => entity.identified).length
     },
     getNewCard: function () {
-      // At end of game if user selects to play again set all cards to not
-      // identified, reset the identified count and set application state
-      // to 'in progress'
-      let resetCards = () => {
-        this.imageInfo.forEach(function (row) {
-          row.identified = false
-        })
-        this.identifiedCount = 0
-        this.appState = 'in progress'
-      }
-
       // If this is the start of the game change the app state to in progress
       // Else if this is the end of the game remove correct identified and
       // start over
       if (this.appState === 'start') {
         this.appState = 'in progress'
       } else if (this.appState === 'end') {
-        resetCards()
+        this.resetCards()
       }
 
       // If all the images have been identified set the game state to 'end',
@@ -168,6 +157,21 @@ export default {
       } else if (this.appState === 'start') {
         this.buttonDisabled = false
       }
+    },
+    resetOnInactivity: function () {
+      clearTimeout(this.startInactiveResetTimer)
+      console.log('timer started!')
+      this.startInactiveResetTimer = setTimeout(() => window.location.reload(), 120000)
+    },
+    resetCards: function () {
+      // At end of game if user selects to play again set all cards to not
+      // identified, reset the identified count and set application state
+      // to 'in progress'
+      this.imageInfo.forEach(function (row) {
+        row.identified = false
+      })
+      this.identifiedCount = 0
+      this.appState = 'start'
     }
   },
   beforeMount () {
@@ -179,7 +183,8 @@ export default {
       row.identified = false
     })
     this.imageInfo = imgData
-
+  },
+  mounted () {
     // Remove loading spinner and add card
     this.imageInfoLoaded = true
   }
@@ -202,7 +207,8 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  background-color: #4156A1;
+  background-image: url('./assets/RedTile.png');
+  background-color: #24383A;
 
   .important-text {
     font-weight: bold;
@@ -366,7 +372,9 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
     opacity: 0;
   }
 
-  .slide-down-enter-active, .slide-up-enter-active, .slide-right-enter-active, .slide-left-enter-active, .slide-left-leave-active, .fade-out-leave-active {
+  .slide-down-enter-active, .slide-up-enter-active,
+  .slide-right-enter-active, .slide-left-enter-active,
+  .slide-left-leave-active, .fade-out-leave-active {
     transition-property: all;
     transition-duration: 1.8s;
     transition-timing-function: ease-in-out;
@@ -389,7 +397,7 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
   }
 
   .switch-card-enter-active, .switch-card-leave-active {
-    transition: all 0.8s cubic-bezier(.75,-0.5,0,1.75);
+    transition: all 1s cubic-bezier(.75,-0.5,0,1.75);
   }
 
   .switch-card-enter {
