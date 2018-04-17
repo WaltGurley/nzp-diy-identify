@@ -30,15 +30,21 @@
   <div v-else-if="stateOfApp === 'in progress'" class="card">
     <div class="card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
       <div class="img-holder">
+        <aside class="img-zoom-callout top-left-border-curved">
+          <i class="fas fa-search-plus img-zoom-icon"></i>
+          <div class="img-zoom-text">
+            <h5 class="line">tap image to zoom</h5>
+          </div>
+        </aside>
         <img
           v-bind:src="imageSource.url"
           v-bind:alt="imageSource.altText"
-          class="img-responsive img-zoomable"
+          class="img-responsive img-zoomable top-border-radius"
           data-action="zoom"
         >
       </div>
       <div class="question-choices">
-        <h2 class="card-header question">What is this animal?</h2>
+        <h2 class="card-header question">Can you identify this animal?</h2>
         <div class="buttons">
           <button
             v-for="entity in cardData"
@@ -52,47 +58,47 @@
     </div>
 
     <div class="card-back will-flip" v-bind:class="{ flippedToBack: !isFlipped }">
-      <div v-show="isCorrect">
         <div class="img-holder">
+          <aside class="img-zoom-callout top-left-border-curved">
+            <i class="fas fa-search-plus img-zoom-icon"></i>
+            <div class="img-zoom-text">
+              <h5 class="line">tap image to zoom</h5>
+            </div>
+          </aside>
           <img
             v-bind:src="imageSource.url"
             v-bind:alt="imageSource.altText"
-            class="img-responsive img-zoomable"
-            alt="Can you tell what is in this image?"
+            class="img-responsive img-zoomable top-border-radius"
             data-action="zoom"
           >
         </div>
-        <div class="correct-answer">
+
+        <div v-show="isCorrect" class="correct-answer">
           <h2 class="card-header">You are correct!</h2>
           <h2 class="card-header">{{correctImage.EntityName}}</h2>
           <p class="card-paragraph">{{correctImage.EntityDescription}}</p>
         </div>
-      </div>
-
-      <div v-show="!isCorrect">
-        <div class="img-holder">
-          <img
-            v-bind:src="imageSource.url"
-            v-bind:alt="imageSource.altText"
-            class="img-responsive img-zoomable"
-            alt="Can you tell what is in this image?"
-            data-action="zoom"
-          >
+        <div v-show="!isCorrect">
+          <div class="incorrect-answer">
+            <h2 class="card-header">Sorry, that's incorrect.</h2>
+            <p class="card-paragraph">This is a {{correctImage.EntityName}}. Below is an example of a {{userChoice.EntityName}}</p>
+          </div>
+          <div class="img-holder">
+            <aside class="img-zoom-callout">
+              <i class="fas fa-search-plus img-zoom-icon"></i>
+              <div class="img-zoom-text">
+                <h5 class="line">tap image to zoom</h5>
+              </div>
+            </aside>
+            <img
+              v-bind:src="wrongImageSource.url"
+              v-bind:alt="wrongImageSource.altText"
+              class="img-responsive img-zoomable bottom-border-radius"
+              alt="Can you tell what is in this image?"
+              data-action="zoom"
+            >
+          </div>
         </div>
-        <div class="incorrect-answer">
-          <h2 class="card-header">Sorry, that's incorrect.</h2>
-          <p>This is a {{correctImage.EntityName}}. Below is an example of a {{userChoice.EntityName}}</p>
-        </div>
-        <div class="img-holder">
-          <img
-            v-bind:src="wrongImageSource.url"
-            v-bind:alt="wrongImageSource.altText"
-            class="img-responsive img-zoomable"
-            alt="Can you tell what is in this image?"
-            data-action="zoom"
-          >
-        </div>
-      </div>
     </div>
   </div>
 
@@ -116,22 +122,19 @@ const zooming = new Zooming({
   // Add border radius to bottom of image when zoomed
   onBeforeOpen: () => {
     document.querySelectorAll('.img-zoomable').forEach(img =>
-      img.setAttribute('style', 'border-radius: 6px;')
+      img.classList.add('full-border-radius')
     )
-    document.querySelectorAll('#new-card-button').forEach(img =>
-      img.setAttribute('disabled', true)
+    document.querySelectorAll('#new-card-button').forEach(d =>
+      d.setAttribute('disabled', true)
     )
   },
   // Remove border radius from bottom of image when back to card
   onClose: () => {
-    document.querySelectorAll('.img-zoomable').forEach(d =>
-      d.setAttribute(
-        'style',
-        'border-bottom-right-radius: 0; border-bottom-left-radius: 0'
-      )
+    document.querySelectorAll('.img-zoomable').forEach(img =>
+      img.classList.remove('full-border-radius')
     )
-    document.querySelectorAll('#new-card-button').forEach(img =>
-      img.removeAttribute('disabled')
+    document.querySelectorAll('#new-card-button').forEach(d =>
+      d.removeAttribute('disabled')
     )
   }
 })
@@ -164,7 +167,7 @@ export default {
       } else {
         this.isCorrect = false
         this.wrongImageSource = {
-          'url': `./static/images/${userChoice.ImageName}`,
+          'url': userChoice.url,
           'altText': userChoice.AltText
         }
       }
@@ -174,7 +177,7 @@ export default {
     // Set the source of the current image
     imageSource: function () {
       return {
-        'url': `./static/images/${this.correctImage.ImageName}`,
+        'url': this.correctImage.url,
         'altText': this.correctImage.AltText
       }
     }
@@ -270,11 +273,57 @@ export default {
     .img-holder {
       width: 100%;
       max-height: 50%;
+      position: relative;
+
+      .img-zoom-callout {
+        position: absolute;
+        display: flex;
+        align-items: flex-start;
+        pointer-events: none;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.4em;
+        // border-top-right-radius: 0.5rem;
+        border-bottom-right-radius: 1rem;
+        border-bottom-left-radius: 1rem;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.6);
+
+        .img-zoom-icon {
+          font-size: 1.4rem;
+          padding-right: 0.2em;
+        }
+
+        .img-zoom-text {
+          display: flex;
+          flex-direction: column;
+          font-size: 1.2rem;
+          margin: 0;
+          line-height: 1.2rem;
+
+          .line {
+            margin: 0;
+          }
+        }
+      }
+
+      .full-border-radius {
+        border-radius: 1rem;
+      }
+
+      .bottom-border-radius {
+        border-bottom-right-radius: 1rem;
+        border-bottom-left-radius: 1rem;
+      }
+
+      .top-border-radius {
+        border-top-right-radius: 1rem;
+        border-top-left-radius: 1rem;
+      }
 
       img {
         cursor: zoom-in;
-        border-top-right-radius: 6px;
-        border-top-left-radius: 6px;
       }
     }
 
@@ -338,7 +387,7 @@ export default {
       display: flex;
       flex-direction: column;
       align-items: center;
-      background-color: #FFFFFF;
+      background-color: white;
 
       .correct-answer, .incorrect-answer {
         overflow-y: scroll;
@@ -348,7 +397,7 @@ export default {
     .will-flip {
       border-style: solid;
       border-width: 1px;
-      border-radius: 6px;
+      border-radius: 1em;
       border-color: darken(#FFFFFF, 10%);
       box-shadow: 10px 20px 40px #24383A;
       backface-visibility: hidden;
@@ -360,12 +409,12 @@ export default {
 
     .flippedToFront {
       transform: rotateY(-180deg);
-      box-shadow: -10px 10px 20px #CCCCCC;
+      box-shadow: -10px 10px 20px #24383A;
     }
 
     .flippedToBack {
       transform: rotateY(180deg);
-      box-shadow: 10px 10px 20px #CCCCCC;
+      box-shadow: 10px 10px 20px #24383A;
     }
   }
 </style>

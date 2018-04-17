@@ -4,7 +4,7 @@
       <nav v-if="imageInfoLoaded">
         <h1 class="app-title">Under the Umbrella</h1>
         <h3 class="group-name">Smithsonian's National Zoo and Conservation Biology Institute</h3>
-        <icon v-on:click.native="showInfo = !showInfo" name="info-circle" class="info-button"></icon>
+        <i v-on:click="showInfo = !showInfo" class="fas fa-info-circle info-button"></i>
       </nav>
     </transition>
     <div class="main-container">
@@ -37,6 +37,7 @@
       <transition name="slide-right">
         <div v-show="!buttonDisabled" class="app-containers score-container">
           <h2 class="score">{{identifiedCount}} / {{imageInfo.length}}</h2>
+          <!-- <img src="./assets/PandaIcon.svg" alt=""> -->
         </div>
       </transition>
       <transition name="slide-up">
@@ -52,7 +53,6 @@
     </div>
     <modal
       v-if="showInfo"
-      :appInfo="pageInfo"
       v-on:closeModal="showInfo = false"
     >
     </modal>
@@ -70,17 +70,14 @@ import sample from 'lodash/sample'
 import sampleSize from 'lodash/sampleSize'
 import shuffle from 'lodash/shuffle'
 import uniqBy from 'lodash/uniqBy'
-import 'vue-awesome/icons/info-circle'
-import Icon from 'vue-awesome/components/Icon'
 
-import imgData from '../static/imageInfo.csv'
+import imgData from './assets/imageInfo.csv'
 
 export default {
   name: 'app',
   components: {
     Card,
-    Modal,
-    Icon
+    Modal
   },
   data () {
     return {
@@ -89,7 +86,6 @@ export default {
       currentImage: {},
       newCardButtonText: 'Start Game',
       identifiedCount: 0,
-      pageInfoLoaded: false,
       imageInfoLoaded: false,
       cardSwitch: true,
       showInfo: false,
@@ -100,11 +96,10 @@ export default {
   },
   methods: {
     startGame: function () {
-      this.dataForCurrentState = this.pageInfo
       this.dataForCurrentState.push(this.imageInfo.length)
     },
     startOver: function () {
-      this.dataForCurrentState = this.pageInfo
+      this.imageInfo = shuffle(imgData).slice(0, 5)
       this.dataForCurrentState.push(this.imageInfo.length)
     },
     getRandomChoicesSetImg: function () {
@@ -113,9 +108,7 @@ export default {
       this.currentImage = sample(
         filter(this.imageInfo, entity => !entity.identified)
       )
-      // const names = map(this.imageInfo, entity => entity.EntityName)
       const uniqueEntities = uniqBy(this.imageInfo, 'EntityName')
-      // const uniqueNames = uniq(names)
       this.dataForCurrentState = sampleSize(
         filter(uniqueEntities, entity =>
           entity.EntityName !== this.currentImage.EntityName),
@@ -158,31 +151,39 @@ export default {
         this.buttonDisabled = false
       }
     },
-    resetOnInactivity: function () {
-      clearTimeout(this.startInactiveResetTimer)
-      console.log('timer started!')
-      this.startInactiveResetTimer = setTimeout(() => window.location.reload(), 120000)
+    setCardsForStart: function () {
+      // Get the image information sheet and extract the data
+      // This is locally loaded from '../static/imageInfo.csv'
+      // Add 'identified' property to each row of data and set to false
+      // as no image has been identified
+      imgData.forEach(function (row) {
+        row.identified = false
+        // TODO load from precompiled or static images???
+        row.url = require(`./assets/images/${row.ImageName}`)
+        const rowImg = document.createElement('img')
+        rowImg.src = row.url
+        row.img = rowImg
+      })
+      console.log(imgData)
+      // Shuffle the cards and select five for the game
+      this.imageInfo = shuffle(imgData).slice(0, 5)
     },
     resetCards: function () {
       // At end of game if user selects to play again set all cards to not
       // identified, reset the identified count and set application state
       // to 'in progress'
-      this.imageInfo.forEach(function (row) {
-        row.identified = false
-      })
+      this.setCardsForStart()
       this.identifiedCount = 0
       this.appState = 'start'
+    },
+    resetOnInactivity: function () {
+      clearTimeout(this.startInactiveResetTimer)
+      console.log('timer started!')
+      this.startInactiveResetTimer = setTimeout(() => window.location.reload(), 120000)
     }
   },
   beforeMount () {
-    // Get the imagage information sheet and extract the data
-    // This is locally loaded from '../static/imageInfo.csv'
-    // Add 'identified' property to each row of data and set to false
-    // as no image has been identified
-    imgData.forEach(function (row) {
-      row.identified = false
-    })
-    this.imageInfo = imgData
+    this.setCardsForStart()
   },
   mounted () {
     // Remove loading spinner and add card
@@ -197,6 +198,9 @@ export default {
 <style lang="scss">
 @import url('https://fonts.googleapis.com/css?family=Heebo');
 @import "~include-media/dist/include-media";
+$fa-font-path: "~@fortawesome/fontawesome-free-webfonts/webfonts";
+@import "~@fortawesome/fontawesome-free-webfonts/scss/fontawesome";
+@import "~@fortawesome/fontawesome-free-webfonts/scss/fa-solid";
 $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px);
 
 #app {
@@ -211,7 +215,7 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   background-image: url('./assets/RedTile.png');
-  background-color: #24383A;
+  background-color: #2c3e50;
 
   .important-text {
     font-weight: bold;
@@ -243,18 +247,20 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
     @include media("<=small-phone") {
       height: 40px;
     }
+    padding-bottom: 1em;
     background-color: #333333;
     color: #F2F2F2;
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: center;
     flex-wrap: wrap;
-    padding-left: 0.85em;
-    padding-right: 0.85em;
-    box-shadow: 0px 2.5px 5px darken(#4156A1, 30%);
+    padding-left: 1em;
+    padding-right: 1em;
+    box-shadow: 0px 2.5px 5px #24383A;
 
     .app-title {
       font-weight: normal;
+      font-size: 2em;
       @include media("<=small-phone") {
         font-size: 1em;
       }
@@ -263,7 +269,8 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
     .group-name {
       font-weight: lighter;
       margin-left: auto;
-      margin-right: 0.85em;
+      font-size: 1.4em;
+      margin-right: 0.5em;
       @include media("<=phone") {
         display: none;
       }
@@ -271,10 +278,9 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
 
     .info-button {
       cursor: pointer;
+      font-size: 2em;
       width: auto;
-      height: 40%;
-      padding: 2px;
-      margin-left: 0.85em;
+      margin-left: 0.5em;
       @include media("<=tablet") {
         height: 34px;
       }
