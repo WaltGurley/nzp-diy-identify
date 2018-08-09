@@ -36,8 +36,14 @@
       </transition>
       <transition name="slide-right">
         <div v-show="!buttonDisabled" class="app-containers score-container">
-          <h2 class="score">{{identifiedCount}} / {{imageInfo.length}}</h2>
-          <!-- <img src="./assets/PandaIcon.svg" alt=""> -->
+          <!-- <h2 class="score">{{identifiedCount}} / {{imageInfo.length}}</h2> -->
+          <div class="panda-score">
+            <img class="img-responsive panda-img-test" src="./assets/PandaIcon.svg" alt="">
+            <img class="img-responsive panda-img-test" src="./assets/PandaIcon.svg" alt="">
+            <img class="img-responsive panda-img-test" src="./assets/PandaIcon.svg" alt="">
+            <img class="img-responsive panda-img-test" src="./assets/PandaIcon.svg" alt="">
+            <img class="img-responsive panda-img-test" src="./assets/PandaIcon.svg" alt="">
+          </div>
         </div>
       </transition>
       <transition name="slide-up">
@@ -334,6 +340,19 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
       @include media("<=small-phone") {
         margin-bottom: 0.1em;
         margin-top: 0.4em;
+      }
+    }
+
+    .panda-score {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      flex-direction: row;
+      width: 100%;
+      height: 100px;
+
+      .panda-img-test {
+        width: 8%;
       }
     }
 

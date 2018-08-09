@@ -4,7 +4,7 @@
         <div v-on:click="$emit('closeModal')" class="modal-background">
           <div class="modal-holder">
             <h4>Under the Umbrella</h4>
-            <p class="modal-paragraph">This game was built using a web template developed at NCSU Libraries. Photographs are supplied from camera traps operated by eMammal (emammal.si.edu) and depict animals that live in the same habitat and range as the giant panda. For information on the Smithsonian Institution’s Privacy Statement and Terms of Use, please visit www.si.edu/privacy and www.si.edu/termsofuse.</p>
+            <p class="modal-paragraph">This game was developed using a web template developed at the NCSU Libraries. Photographs are supplied from camera traps operated by eMammal (emammal.si.edu) and depict animals that live in the same habitat and range as the giant panda. For information on the Smithsonian Institution’s Privacy Statement and Terms of Use, please visit www.si.edu/privacy and www.si.edu/termsofuse.</p>
             <button v-on:click="$emit('closeModal')" class="modal-button">Close</button>
           </div>
         </div>

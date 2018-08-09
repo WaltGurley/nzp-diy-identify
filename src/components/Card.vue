@@ -3,11 +3,11 @@
     <div class="info-card card-front will-flip" v-bind:class="{ flippedToFront: isFlipped }">
       <h1 class="card-header start-card-header">Under the Umbrella</h1>
       <p class="card-paragraph start-card-paragraph">
-        Test your ability to identify <span class="important-text">Animals in China</span>!
+        Test your ability to identify other animals that share the giant panda habitat.
       </p>
       <ol class="card-list card-paragraph start-card-paragraph">
-        <li class="card-list-item">You will be presented with an image and three choices.</li>
-        <li class="card-list-item">Select the choice that identifies what is in the image.</li>
+        <li class="card-list-item">Each card shows a photo taken by a camera trap in China.</li>
+        <li class="card-list-item">Select the name of the animal from the three choices.</li>
       </ol>
       <button
         v-on:click="flipped('')"
@@ -19,7 +19,7 @@
     <div class="info-card card-back will-flip" v-bind:class="{ flippedToBack: !isFlipped }">
       <h2 class="card-header start-card-header">{{cardData[0]}}</h2>
       <p class="card-paragraph start-card-paragraph">
-        Keep track of your progress with the score below. It shows you how many images you have correctly identified out of the total. Don't worry if you get one wrong. Any incorrect cards will be put back into the  deck for you to try again.
+        How well do you know the animals in the mountains of China? A panda will keep score of your five answers, but don't worry if you choose incorrectly: You can try again. The game randomly selects from dozens of images, so you'll get to learn something new each time!
       </p>
       <p class="card-paragraph start-card-paragraph">
         Select <span class="important-text">Start Game</span> below to begin!
@@ -47,7 +47,8 @@
         <h2 class="card-header question">Can you identify this animal?</h2>
         <div class="buttons">
           <button
-            v-for="entity in cardData"
+            v-for="(entity, i) in cardData"
+            v-bind:key="i"
             v-on:click="flipped(entity)"
             class="card-button"
           >
@@ -94,7 +95,6 @@
               v-bind:src="wrongImageSource.url"
               v-bind:alt="wrongImageSource.altText"
               class="img-responsive img-zoomable bottom-border-radius"
-              alt="Can you tell what is in this image?"
               data-action="zoom"
             >
           </div>
@@ -241,13 +241,16 @@ export default {
       align-items: flex-start;
 
       .start-card-header {
-        margin-top: 0.85em;
+        @include media(">=desktop") {
+          font-size: 1.8em;
+        }
+        margin-top: 1.2em;
         margin-bottom: 0;
       }
 
       .start-card-paragraph {
         @include media(">=desktop") {
-          font-size: 1.1em;
+          font-size: 1.5em;
         }
         margin-top: 0.85em;
         margin-bottom: 0;
@@ -403,7 +406,6 @@ export default {
       backface-visibility: hidden;
       transition-property: all;
       transition-duration: 1.2s;
-      transtition-timing-function: ease-in-out;
       transition-timing-function: cubic-bezier(0.25, -0.5, 0.25, 1.5);
     }
 
