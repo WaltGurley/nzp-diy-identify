@@ -180,11 +180,10 @@ export default {
       // to 'in progress'
       this.setCardsForStart()
       this.identifiedCount = 0
-      this.appState = 'start'
+      this.appState = 'in progress'
     },
     resetOnInactivity: function () {
       clearTimeout(this.startInactiveResetTimer)
-      console.log('timer started!')
       this.startInactiveResetTimer = setTimeout(() => window.location.reload(), 120000)
     }
   },
@@ -350,6 +349,7 @@ $breakpoints: (small-phone: 320px, phone: 425px, tablet: 768px, desktop: 1024px)
       flex-direction: row;
       width: 100%;
       height: 100px;
+      padding-bottom: 1em;
 
       .panda-img-test {
         width: 8%;
